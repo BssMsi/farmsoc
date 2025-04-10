@@ -1,8 +1,7 @@
-
 import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
 import ProductCard from '../../../components/common/ProductCard';
-import { Product } from '../../../types/product';
+import { Product, ProductCategory } from '../../../types/product';
 
 // Mock react-router-dom
 jest.mock('react-router-dom', () => ({
@@ -12,27 +11,17 @@ jest.mock('react-router-dom', () => ({
 
 describe('ProductCard Component', () => {
   const mockProduct: Product = {
-    id: 'p1',
+    id: '1',
+    farmerId: '1',
     name: 'Test Product',
-    description: 'This is a test product description',
+    description: 'Test Description',
     price: 100,
-    farmerId: 'farmer1',
-    images: ['https://example.com/image.jpg'],
-    category: 'vegetables',
+    images: ['test-image.jpg'],
+    category: 'vegetables' as ProductCategory,
     quantity: 10,
     unit: 'kg',
-    tags: ['organic', 'fresh'],
-    farmingMethod: 'organic',
-    nutritionalInfo: {
-      calories: 50,
-      proteins: 2,
-      carbohydrates: 10,
-      fats: 0.5,
-    },
-    isFeatured: true,
     rating: 4.5,
     reviewCount: 10,
-    availabilityDate: new Date(),
     createdAt: new Date(),
     updatedAt: new Date()
   };
@@ -73,5 +62,31 @@ describe('ProductCard Component', () => {
     fireEvent.click(screen.getByText('Test Product'));
     
     expect(navigateMock).toHaveBeenCalledWith(`/app/product/${mockProduct.id}`);
+  });
+
+  it('renders product information correctly', () => {
+    render(<ProductCard product={mockProduct} />);
+    
+    expect(screen.getByText('Test Product')).toBeInTheDocument();
+    expect(screen.getByText('Test Description')).toBeInTheDocument();
+    expect(screen.getByText('₹100')).toBeInTheDocument();
+    expect(screen.getByText('4.5')).toBeInTheDocument();
+    expect(screen.getByText('(10 reviews)')).toBeInTheDocument();
+  });
+
+  it('renders product image correctly', () => {
+    render(<ProductCard product={mockProduct} />);
+    const image = screen.getByAltText('Test Product');
+    expect(image).toHaveAttribute('src', 'test-image.jpg');
+  });
+
+  it('calls onAddToCart when add to cart button is clicked', () => {
+    const onAddToCart = jest.fn();
+    render(<ProductCard product={mockProduct} onAddToCart={onAddToCart} />);
+    
+    const addToCartButton = screen.getByText('Add to Cart');
+    fireEvent.click(addToCartButton);
+    
+    expect(onAddToCart).toHaveBeenCalledTimes(1);
   });
 });

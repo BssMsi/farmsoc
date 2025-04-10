@@ -60,6 +60,18 @@ This project is built with .
 - shadcn-ui
 - Tailwind CSS
 
+## Pending Implementations
+
+### Farmer Post Creation
+- [ ] Implement `getFarmerProducts` API endpoint to fetch farmer's products
+  - Endpoint should return products sorted by creation date (newest first)
+  - Include product details: id, name, createdAt, etc.
+  - Handle error cases and loading states
+- [ ] Add product selection validation in post creation
+  - Ensure a product is selected before post submission
+  - Show appropriate error messages
+  - Update post creation API to include selected product ID
+
 ## How can I deploy this project?
 
 Simply open [Lovable](https://lovable.dev/projects/97737445-ecbc-415a-a570-764d80fd19ef) and click on Share -> Publish.

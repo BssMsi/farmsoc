@@ -1,4 +1,3 @@
-
 import { User } from '../types/user';
 import { Product } from '../types/product';
 import { Post } from '../types/post';
@@ -72,7 +71,6 @@ export const mockProducts: Product[] = [
     category: 'vegetables',
     quantity: 100,
     unit: 'kg',
-    tags: ['organic', 'fresh', 'pesticide-free'],
     farmingMethod: 'organic',
     rating: 4.5,
     reviewCount: 27,
@@ -89,7 +87,6 @@ export const mockProducts: Product[] = [
     category: 'grains',
     quantity: 200,
     unit: 'kg',
-    tags: ['basmati', 'premium', 'aged'],
     rating: 4.8,
     reviewCount: 42,
     createdAt: new Date('2023-05-16'),
@@ -105,7 +102,6 @@ export const mockProducts: Product[] = [
     category: 'fruits',
     quantity: 50,
     unit: 'kg',
-    tags: ['sweet', 'juicy', 'seasonal'],
     farmingMethod: 'organic',
     rating: 4.7,
     reviewCount: 18,
@@ -122,7 +118,6 @@ export const mockProducts: Product[] = [
     category: 'honey',
     quantity: 30,
     unit: 'kg',
-    tags: ['raw', 'unfiltered', 'natural'],
     rating: 4.9,
     reviewCount: 36,
     createdAt: new Date('2023-05-18'),
@@ -138,7 +133,6 @@ export const mockProducts: Product[] = [
     category: 'vegetables',
     quantity: 75,
     unit: 'kg',
-    tags: ['green', 'leafy', 'nutrient-rich'],
     farmingMethod: 'hydroponic',
     rating: 4.4,
     reviewCount: 23,

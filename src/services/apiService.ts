@@ -1,4 +1,3 @@
-
 import { 
   mockUsers, 
   mockProducts, 
@@ -537,8 +536,7 @@ export const searchProducts = async (query: string): Promise<Product[]> => {
       const results = mockProducts.filter(
         product => 
           product.name.toLowerCase().includes(lowercaseQuery) || 
-          product.description.toLowerCase().includes(lowercaseQuery) ||
-          product.tags.some(tag => tag.toLowerCase().includes(lowercaseQuery))
+          product.description.toLowerCase().includes(lowercaseQuery)
       );
       resolve(results);
     }, 300);

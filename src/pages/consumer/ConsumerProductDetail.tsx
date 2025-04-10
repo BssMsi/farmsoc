@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Star, ShoppingCart, ChevronDown, ChevronUp } from 'lucide-react';
@@ -83,225 +82,109 @@ const ConsumerProductDetail: React.FC = () => {
   }
 
   return (
-    <div className="h-full bg-white pb-16">
-      {/* Header */}
-      <div className="p-4 flex items-center border-b">
-        <button 
-          className="p-1 mr-2 text-gray-700"
-          onClick={() => navigate(-1)}
-        >
-          <ArrowLeft size={24} />
-        </button>
-        <h1 className="text-xl font-semibold">Product Details</h1>
-      </div>
-      
-      {/* Product images */}
-      <div className="relative">
-        <img 
-          src={product.images[activeImageIndex] || 'https://via.placeholder.com/400x300?text=No+Image'} 
-          alt={product.name} 
-          className="w-full h-64 object-cover"
-        />
-        
-        {/* Image indicators */}
-        {product.images.length > 1 && (
-          <div className="absolute bottom-2 left-0 right-0 flex justify-center space-x-2">
-            {product.images.map((_, index) => (
-              <button 
-                key={index} 
-                onClick={() => setActiveImageIndex(index)}
-                className={`w-2 h-2 rounded-full ${
-                  index === activeImageIndex ? 'bg-white' : 'bg-white/50'
-                }`}
-              />
-            ))}
+    <div className="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-4xl mx-auto">
+        <div className="bg-white rounded-xl shadow-sm p-6">
+          <div className="flex items-center mb-6">
+            <button
+              onClick={() => navigate(-1)}
+              className="p-2 rounded-lg hover:bg-gray-100"
+            >
+              <ArrowLeft className="h-6 w-6 text-gray-600" />
+            </button>
+            <h1 className="text-2xl font-bold text-gray-900 ml-4">{product?.name}</h1>
           </div>
-        )}
-        
-        {/* Product badges */}
-        <div className="absolute top-2 left-2 flex space-x-2">
-          {product.farmingMethod === 'organic' && (
-            <span className="px-2 py-1 bg-green-100 text-green-800 text-xs rounded-md">
-              Organic
-            </span>
-          )}
-          {product.isFeatured && (
-            <span className="px-2 py-1 bg-farmsoc-secondary text-white text-xs rounded-md">
-              Featured
-            </span>
-          )}
-        </div>
-      </div>
-      
-      {/* Product info */}
-      <div className="p-4">
-        <div className="flex justify-between items-start">
-          <div>
-            <h2 className="text-xl font-semibold">{product.name}</h2>
-            <div className="flex items-center mt-1">
-              <Star size={16} className="text-yellow-400 fill-current" />
-              <span className="text-sm text-gray-600 ml-1">
-                {product.rating || '0'} ({product.reviewCount || '0'} reviews)
-              </span>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            {/* Product Images */}
+            <div>
+              <div className="relative aspect-square rounded-lg overflow-hidden mb-4">
+                <img
+                  src={product?.images[activeImageIndex]}
+                  alt={product?.name}
+                  className="w-full h-full object-cover"
+                />
+              </div>
+              <div className="flex space-x-2">
+                {product?.images.map((image, index) => (
+                  <button
+                    key={index}
+                    onClick={() => setActiveImageIndex(index)}
+                    className={`w-20 h-20 rounded-lg overflow-hidden ${
+                      activeImageIndex === index ? 'ring-2 ring-farmsoc-primary' : ''
+                    }`}
+                  >
+                    <img
+                      src={image}
+                      alt={`${product?.name} ${index + 1}`}
+                      className="w-full h-full object-cover"
+                    />
+                  </button>
+                ))}
+              </div>
             </div>
-          </div>
-          <div className="text-xl font-bold text-farmsoc-primary">
-            ₹{product.price}/{product.unit}
-          </div>
-        </div>
-        
-        {/* Quantity selector */}
-        <div className="mt-4 flex justify-between items-center">
-          <div className="text-gray-700">Quantity:</div>
-          <div className="flex items-center border rounded">
-            <button 
-              className="px-3 py-1 text-gray-500"
-              onClick={decrementQuantity}
-              disabled={quantity <= 1}
-            >
-              -
-            </button>
-            <span className="px-4 py-1 border-x">{quantity}</span>
-            <button 
-              className="px-3 py-1 text-gray-500"
-              onClick={incrementQuantity}
-            >
-              +
-            </button>
-          </div>
-        </div>
-        
-        {/* Add to cart button */}
-        <button 
-          className="w-full py-3 mt-4 bg-farmsoc-primary text-white rounded-lg font-medium flex items-center justify-center"
-          onClick={handleAddToCart}
-          disabled={addToCartMutation.isPending}
-        >
-          <ShoppingCart size={20} className="mr-2" />
-          {addToCartMutation.isPending ? 'Adding...' : 'Add to Cart'}
-        </button>
-        
-        {/* Collapsible sections */}
-        <div className="mt-6 space-y-4">
-          {/* Description */}
-          <div className="border rounded-lg overflow-hidden">
-            <button 
-              className="w-full p-4 flex justify-between items-center"
-              onClick={() => setShowDescription(!showDescription)}
-            >
-              <span className="font-medium">Description</span>
-              {showDescription ? (
-                <ChevronUp size={20} className="text-gray-500" />
-              ) : (
-                <ChevronDown size={20} className="text-gray-500" />
-              )}
-            </button>
-            
-            {showDescription && (
-              <div className="p-4 pt-0 text-gray-700">
-                <p>{product.description}</p>
-                
-                <div className="mt-4 grid grid-cols-2 gap-4">
-                  <div>
-                    <div className="text-sm text-gray-500">Category</div>
-                    <div className="font-medium capitalize">{product.category}</div>
-                  </div>
-                  
-                  {product.farmingMethod && (
-                    <div>
-                      <div className="text-sm text-gray-500">Farming Method</div>
-                      <div className="font-medium capitalize">{product.farmingMethod}</div>
-                    </div>
-                  )}
-                  
-                  {product.availabilityDate && (
-                    <div>
-                      <div className="text-sm text-gray-500">Harvest Date</div>
-                      <div className="font-medium">
-                        {new Date(product.availabilityDate).toLocaleDateString()}
-                      </div>
-                    </div>
-                  )}
-                  
-                  <div>
-                    <div className="text-sm text-gray-500">Available Quantity</div>
-                    <div className="font-medium">{product.quantity} {product.unit}</div>
-                  </div>
+
+            {/* Product Details */}
+            <div>
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center">
+                  <span className="text-3xl font-bold text-gray-900">₹{product?.price}</span>
+                  <span className="text-gray-500 ml-2">per {product?.unit}</span>
                 </div>
-                
-                {product.tags && product.tags.length > 0 && (
-                  <div className="mt-4">
-                    <div className="text-sm text-gray-500 mb-1">Tags</div>
-                    <div className="flex flex-wrap gap-2">
-                      {product.tags.map(tag => (
-                        <span 
-                          key={tag} 
-                          className="px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded-full"
-                        >
-                          {tag}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-                )}
+                <div className="flex items-center">
+                  <Star className="h-5 w-5 text-yellow-400" />
+                  <span className="ml-1 text-gray-900">{product?.rating}</span>
+                  <span className="text-gray-500 ml-1">({product?.reviewCount} reviews)</span>
+                </div>
               </div>
-            )}
-          </div>
-          
-          {/* Nutritional Info */}
-          <div className="border rounded-lg overflow-hidden">
-            <button 
-              className="w-full p-4 flex justify-between items-center"
-              onClick={() => setShowNutrition(!showNutrition)}
-            >
-              <span className="font-medium">Nutritional Information</span>
-              {showNutrition ? (
-                <ChevronUp size={20} className="text-gray-500" />
-              ) : (
-                <ChevronDown size={20} className="text-gray-500" />
+
+              <div className="mb-6">
+                <h2 className="text-lg font-medium text-gray-900 mb-2">Description</h2>
+                <p className="text-gray-600">{product?.description}</p>
+              </div>
+
+              <div className="mb-6">
+                <h2 className="text-lg font-medium text-gray-900 mb-2">Category</h2>
+                <p className="text-gray-600 capitalize">{product?.category}</p>
+              </div>
+
+              {product?.farmingMethod && (
+                <div className="mb-6">
+                  <h2 className="text-lg font-medium text-gray-900 mb-2">Farming Method</h2>
+                  <p className="text-gray-600 capitalize">{product?.farmingMethod}</p>
+                </div>
               )}
-            </button>
-            
-            {showNutrition && (
-              <div className="p-4 pt-0 text-gray-700">
-                {product.nutritionalInfo ? (
-                  <div className="space-y-2">
-                    {product.nutritionalInfo.calories !== undefined && (
-                      <div className="flex justify-between">
-                        <span>Calories</span>
-                        <span>{product.nutritionalInfo.calories} kcal</span>
-                      </div>
-                    )}
-                    {product.nutritionalInfo.proteins !== undefined && (
-                      <div className="flex justify-between">
-                        <span>Proteins</span>
-                        <span>{product.nutritionalInfo.proteins} g</span>
-                      </div>
-                    )}
-                    {product.nutritionalInfo.carbohydrates !== undefined && (
-                      <div className="flex justify-between">
-                        <span>Carbohydrates</span>
-                        <span>{product.nutritionalInfo.carbohydrates} g</span>
-                      </div>
-                    )}
-                    {product.nutritionalInfo.fats !== undefined && (
-                      <div className="flex justify-between">
-                        <span>Fats</span>
-                        <span>{product.nutritionalInfo.fats} g</span>
-                      </div>
-                    )}
-                    {product.nutritionalInfo.fiber !== undefined && (
-                      <div className="flex justify-between">
-                        <span>Fiber</span>
-                        <span>{product.nutritionalInfo.fiber} g</span>
-                      </div>
-                    )}
+
+              <div className="mb-6">
+                <h2 className="text-lg font-medium text-gray-900 mb-2">Quantity</h2>
+                <div className="flex items-center space-x-4">
+                  <div className="flex items-center border rounded-lg">
+                    <button
+                      onClick={decrementQuantity}
+                      className="p-2 text-gray-600 hover:bg-gray-100"
+                    >
+                      <ChevronDown className="h-5 w-5" />
+                    </button>
+                    <span className="px-4 py-2">{quantity}</span>
+                    <button
+                      onClick={incrementQuantity}
+                      className="p-2 text-gray-600 hover:bg-gray-100"
+                    >
+                      <ChevronUp className="h-5 w-5" />
+                    </button>
                   </div>
-                ) : (
-                  <p>Nutritional information is not available for this product.</p>
-                )}
+                  <span className="text-gray-500">{product?.unit}</span>
+                </div>
               </div>
-            )}
+
+              <button
+                onClick={handleAddToCart}
+                className="w-full bg-farmsoc-primary text-white py-3 px-4 rounded-lg font-medium hover:bg-farmsoc-primary/90 transition-colors flex items-center justify-center"
+              >
+                <ShoppingCart className="h-5 w-5 mr-2" />
+                Add to Cart
+              </button>
+            </div>
           </div>
         </div>
       </div>

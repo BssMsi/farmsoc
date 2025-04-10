@@ -1,4 +1,3 @@
-
 export type PostType = 'post' | 'reel' | 'story';
 
 export interface Post {
@@ -13,7 +12,6 @@ export interface Post {
   video?: string;
   linkedProducts?: string[]; // Product IDs
   location?: string;
-  tags?: string[];
   createdAt: Date;
   updatedAt: Date;
   likes: number;

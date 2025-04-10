@@ -1,4 +1,3 @@
-
 export interface Product {
   id: string;
   farmerId: string;
@@ -12,7 +11,6 @@ export interface Product {
   unit: 'kg' | 'g' | 'pieces' | 'bundle' | 'liter' | 'ml';
   availabilityDate?: Date;
   isFeatured?: boolean;
-  tags: string[];
   nutritionalInfo?: NutritionalInfo;
   farmingMethod?: 'organic' | 'conventional' | 'hydroponic' | 'other';
   rating?: number;
