@@ -6,7 +6,7 @@ export interface Post {
   username: string;
   userRole: 'farmer' | 'influencer';
   userProfileImage?: string;
-  type: PostType;
+  type?: PostType;
   content: string;
   images?: string[];
   video?: string;

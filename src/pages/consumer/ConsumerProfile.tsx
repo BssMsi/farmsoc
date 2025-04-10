@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { User, Settings, LogOut, PlusCircle, Users, ShoppingBag, CreditCard } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
@@ -159,7 +158,7 @@ const ConsumerProfile: React.FC = () => {
   };
 
   return (
-    <div className="h-full bg-gray-50 pb-16">
+    <div className="h-full bg-gray-50">
       {/* Profile header */}
       <div className="bg-white p-4 shadow-sm">
         <div className="flex items-center">

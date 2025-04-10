@@ -151,7 +151,7 @@ export const mockPosts: Post[] = [
     userProfileImage: 'https://i.pravatar.cc/150?img=4',
     type: 'post',
     content: 'Just harvested a fresh batch of organic tomatoes! Available now.',
-    images: ['https://images.unsplash.com/photo-1592924357236-864f5bf5c177?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.0.3'],
+    images: ['https://images.unsplash.com/photo-1546094096-0df4bcaaa337?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.0.3'],
     linkedProducts: ['p1'],
     location: 'Punjab, India',
     createdAt: new Date('2023-06-01T09:30:00'),

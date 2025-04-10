@@ -35,7 +35,7 @@ const ConsumerEvents: React.FC = () => {
   const openCropRequests = cropRequests.filter(request => request.status === 'open');
 
   return (
-    <div className="h-full bg-gray-50 pb-16">
+    <div className="h-full bg-gray-50">
       <div className="bg-white p-4 shadow-sm">
         <h1 className="text-xl font-semibold mb-4">Events & Requests</h1>
         

@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { getPosts, getProducts, getPersonalizedRecommendations } from '../../services/apiService';
@@ -40,7 +39,7 @@ const ConsumerHome: React.FC = () => {
   };
 
   return (
-    <div className="h-full bg-gray-50 pb-16">
+    <div className="h-full bg-gray-50">
       {/* Greeting and tabs */}
       <div className="bg-white p-4 shadow-sm">
         <h1 className="text-xl font-semibold mb-3">

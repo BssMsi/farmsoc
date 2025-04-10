@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Home, Search, Calendar, ShoppingCart, User, PlusCircle, LineChart, Users, FileText, MessageSquare } from 'lucide-react';
@@ -147,7 +146,7 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
   };
 
   return (
-    <div className="flex flex-col h-screen bg-gray-50">
+    <div className="flex flex-col min-h-screen bg-gray-50">
       {/* Header */}
       <header className="flex items-center justify-between p-4 bg-white border-b">
         <div className="text-2xl font-semibold text-farmsoc-primary">FarmSoc</div>
@@ -169,13 +168,15 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
         </div>
       </header>
       
-      {/* Main content */}
-      <main className="flex-1 overflow-y-auto pb-16">
-        {children}
+      {/* Main content - Adjusted for proper scrolling */}
+      <main className="flex-1 overflow-y-auto">
+        <div className="pb-[4.5rem]">
+          {children}
+        </div>
       </main>
       
       {/* Bottom navigation */}
-      <nav className="fixed bottom-0 left-0 right-0 flex items-center justify-around bg-white border-t">
+      <nav className="fixed bottom-0 left-0 right-0 flex items-center justify-around bg-white border-t h-[4rem] z-10">
         {renderBottomTabs()}
       </nav>
     </div>

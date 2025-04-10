@@ -17,7 +17,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ onProductCreated }) => {
   const [productName, setProductName] = useState('');
   const [productDescription, setProductDescription] = useState('');
   const [productPrice, setProductPrice] = useState('');
-  const [productImages, setProductImages] = useState<string[]>([]);
+  const [productMedia, setProductMedia] = useState<string[]>([]);
   const [productCategory, setProductCategory] = useState<ProductCategory>('vegetables');
   const [productQuantity, setProductQuantity] = useState('');
   const [productUnit, setProductUnit] = useState<'kg' | 'g' | 'pieces' | 'bundle' | 'liter' | 'ml'>('kg');
@@ -30,7 +30,8 @@ const ProductForm: React.FC<ProductFormProps> = ({ onProductCreated }) => {
       name: productName,
       description: productDescription,
       price: parseFloat(productPrice),
-      images: productImages,
+      images: productMedia.filter(media => !media.startsWith('data:video')),
+      video: productMedia.find(media => media.startsWith('data:video')) || '',
       category: productCategory as ProductCategory,
       quantity: parseInt(productQuantity),
       unit: productUnit as 'kg' | 'g' | 'pieces' | 'bundle' | 'liter' | 'ml'
@@ -47,7 +48,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ onProductCreated }) => {
       setProductName('');
       setProductDescription('');
       setProductPrice('');
-      setProductImages([]);
+      setProductMedia([]);
       setProductQuantity('');
       
       if (onProductCreated) {
@@ -64,7 +65,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ onProductCreated }) => {
 
   return (
     <form onSubmit={handleAddProduct} className="space-y-6">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="space-y-4">
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">
             Product Name
@@ -78,51 +79,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ onProductCreated }) => {
             required
           />
         </div>
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Price
-          </label>
-          <div className="relative">
-            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <IndianRupee className="h-5 w-5 text-gray-400" />
-            </div>
-            <input
-              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-farmsoc-primary focus:border-transparent"
-              type="number"
-              placeholder="Enter price"
-              value={productPrice}
-              onChange={(e) => setProductPrice(e.target.value)}
-              required
-            />
-          </div>
-        </div>
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Quantity
-          </label>
-          <div className="flex">
-            <input
-              className="w-full px-4 py-2 border border-gray-300 rounded-l-lg focus:ring-2 focus:ring-farmsoc-primary focus:border-transparent"
-              type="number"
-              placeholder="Enter quantity"
-              value={productQuantity}
-              onChange={(e) => setProductQuantity(e.target.value)}
-              required
-            />
-            <select
-              className="px-4 py-2 border border-gray-300 rounded-r-lg focus:ring-2 focus:ring-farmsoc-primary focus:border-transparent"
-              value={productUnit}
-              onChange={(e) => setProductUnit(e.target.value as 'kg' | 'g' | 'pieces' | 'bundle' | 'liter' | 'ml')}
-            >
-              <option value="kg">kg</option>
-              <option value="g">g</option>
-              <option value="pieces">Pieces</option>
-              <option value="bundle">Bundle</option>
-              <option value="liter">Liter</option>
-              <option value="ml">ml</option>
-            </select>
-          </div>
-        </div>
+
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">
             Category
@@ -143,34 +100,90 @@ const ProductForm: React.FC<ProductFormProps> = ({ onProductCreated }) => {
             <option value="other">Other</option>
           </select>
         </div>
-      </div>
 
-      <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">
-          Description
-        </label>
-        <textarea
-          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-farmsoc-primary focus:border-transparent"
-          rows={4}
-          placeholder="Enter product description"
-          value={productDescription}
-          onChange={(e) => setProductDescription(e.target.value)}
-          required
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            Description
+          </label>
+          <textarea
+            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-farmsoc-primary focus:border-transparent"
+            rows={4}
+            placeholder="Enter product description"
+            value={productDescription}
+            onChange={(e) => setProductDescription(e.target.value)}
+            required
+          />
+        </div>
+
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Price
+            </label>
+            <div className="relative">
+              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <IndianRupee className="h-5 w-5 text-gray-400" />
+              </div>
+              <input
+                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-farmsoc-primary focus:border-transparent"
+                type="number"
+                placeholder="Enter price"
+                value={productPrice}
+                onChange={(e) => setProductPrice(e.target.value)}
+                required
+                min="0"
+                step="0.01"
+              />
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Quantity
+            </label>
+            <div className="flex space-x-2">
+              <input
+                className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-farmsoc-primary focus:border-transparent"
+                type="number"
+                placeholder="Enter quantity"
+                value={productQuantity}
+                onChange={(e) => setProductQuantity(e.target.value)}
+                required
+                min="1"
+              />
+              <select
+                className="w-24 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-farmsoc-primary focus:border-transparent"
+                value={productUnit}
+                onChange={(e) => setProductUnit(e.target.value as typeof productUnit)}
+              >
+                <option value="kg">kg</option>
+                <option value="g">g</option>
+                <option value="pieces">pieces</option>
+                <option value="bundle">bundle</option>
+                <option value="liter">liter</option>
+                <option value="ml">ml</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <ImageUpload 
+          images={productMedia}
+          setImages={setProductMedia}
+          label="Product Media"
+          accept={{
+            'image/*': ['.png', '.jpg', '.jpeg', '.gif'],
+            'video/*': ['.mp4', '.mov', '.avi']
+          }}
         />
+
+        <button
+          type="submit"
+          className="w-full bg-farmsoc-primary text-white py-3 px-4 rounded-lg font-medium hover:bg-farmsoc-primary/90 transition-colors"
+        >
+          Add Product
+        </button>
       </div>
-
-      <ImageUpload 
-        images={productImages}
-        setImages={setProductImages}
-        label="Product Images"
-      />
-
-      <button
-        type="submit"
-        className="w-full bg-farmsoc-primary text-white py-3 px-4 rounded-lg font-medium hover:bg-farmsoc-primary/90 transition-colors"
-      >
-        Add Product
-      </button>
     </form>
   );
 };

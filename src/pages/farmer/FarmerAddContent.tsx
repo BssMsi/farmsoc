@@ -99,15 +99,15 @@ const FarmerAddContent: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-4xl mx-auto">
-        <div className="bg-white rounded-xl shadow-sm p-6 mb-6">
+    <div className="bg-gray-50">
+      <div className="max-w-4xl mx-auto p-4 space-y-6">
+        <div className="bg-white rounded-xl shadow-sm p-6">
           <h1 className="text-2xl font-bold text-gray-900 mb-2">Add New Content</h1>
           <p className="text-gray-600">Create products, posts, or collaboration requirements</p>
         </div>
 
         {/* Tabs */}
-        <div className="bg-white rounded-xl shadow-sm p-6 mb-6">
+        <div className="bg-white rounded-xl shadow-sm p-6">
           <div className="flex justify-center mb-8">
             <div className="flex space-x-4 bg-white p-2 rounded-lg shadow-md">
               <button
@@ -143,51 +143,54 @@ const FarmerAddContent: React.FC = () => {
             </div>
           </div>
 
-          {/* Product Form */}
-          {activeTab === 'product' && <ProductForm />}
+          {/* Forms Container */}
+          <div className="mt-6">
+            {/* Product Form */}
+            {activeTab === 'product' && <ProductForm />}
 
-          {/* Post Form */}
-          {activeTab === 'post' && <PostForm />}
+            {/* Post Form */}
+            {activeTab === 'post' && <PostForm />}
 
-          {/* Collaboration Tabs */}
-          {activeTab === 'collaboration' && (
-            <div className="bg-white rounded-lg shadow-md p-6">
-              <div className="flex justify-center mb-6">
-                <div className="flex space-x-4 bg-gray-100 p-2 rounded-lg">
-                  <button
-                    className={`px-6 py-2 rounded-lg transition-colors ${
-                      activeCollaborationTab === 'search'
-                        ? 'bg-farmsoc-primary text-white'
-                        : 'text-gray-600 hover:bg-gray-100'
-                    }`}
-                    onClick={() => setActiveCollaborationTab('search')}
-                  >
-                    Search Influencers
-                  </button>
-                  <button
-                    className={`px-6 py-2 rounded-lg transition-colors ${
-                      activeCollaborationTab === 'add'
-                        ? 'bg-farmsoc-primary text-white'
-                        : 'text-gray-600 hover:bg-gray-100'
-                    }`}
-                    onClick={() => setActiveCollaborationTab('add')}
-                  >
-                    Add Requirement
-                  </button>
+            {/* Collaboration Tabs */}
+            {activeTab === 'collaboration' && (
+              <div className="bg-white rounded-lg shadow-md p-6">
+                <div className="flex justify-center mb-6">
+                  <div className="flex space-x-4 bg-gray-100 p-2 rounded-lg">
+                    <button
+                      className={`px-6 py-2 rounded-lg transition-colors ${
+                        activeCollaborationTab === 'search'
+                          ? 'bg-farmsoc-primary text-white'
+                          : 'text-gray-600 hover:bg-gray-100'
+                      }`}
+                      onClick={() => setActiveCollaborationTab('search')}
+                    >
+                      Search Influencers
+                    </button>
+                    <button
+                      className={`px-6 py-2 rounded-lg transition-colors ${
+                        activeCollaborationTab === 'add'
+                          ? 'bg-farmsoc-primary text-white'
+                          : 'text-gray-600 hover:bg-gray-100'
+                      }`}
+                      onClick={() => setActiveCollaborationTab('add')}
+                    >
+                      Add Requirement
+                    </button>
+                  </div>
                 </div>
+
+                {activeCollaborationTab === 'search' && (
+                  <CollaborationSearch onInfluencerSelected={handleInfluencerSelected} />
+                )}
+
+                {activeCollaborationTab === 'add' && (
+                  <CollaborationForm 
+                    initialFollowerCount={selectedInfluencer?.totalFollowers?.toString()}
+                  />
+                )}
               </div>
-
-              {activeCollaborationTab === 'search' && (
-                <CollaborationSearch onInfluencerSelected={handleInfluencerSelected} />
-              )}
-
-              {activeCollaborationTab === 'add' && (
-                <CollaborationForm 
-                  initialFollowerCount={selectedInfluencer?.totalFollowers?.toString()}
-                />
-              )}
-            </div>
-          )}
+            )}
+          </div>
         </div>
       </div>
     </div>
