@@ -67,7 +67,11 @@ export const mockProducts: Product[] = [
     name: 'Organic Tomatoes',
     description: 'Fresh organic tomatoes grown without pesticides.',
     price: 60,
-    images: ['https://images.unsplash.com/photo-1546094096-0df4bcaaa337?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.0.3'],
+    images: [
+      'https://images.unsplash.com/photo-1546094096-0df4bcaaa337?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.0.3',
+      'https://images.unsplash.com/photo-1518977676601-b53f82aba655?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.0.3',
+      'https://images.unsplash.com/photo-1582284540020-8acbe03f4924?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.0.3'
+    ],
     category: 'vegetables',
     quantity: 100,
     unit: 'kg',
@@ -83,7 +87,11 @@ export const mockProducts: Product[] = [
     name: 'Basmati Rice',
     description: 'Premium quality aged basmati rice.',
     price: 150,
-    images: ['https://images.unsplash.com/photo-1536304993881-ff6e9eefa2a6?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.0.3'],
+    images: [
+      'https://images.unsplash.com/photo-1536304993881-ff6e9eefa2a6?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.0.3',
+      'https://images.unsplash.com/photo-1601050690597-df0568f70950?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.0.3',
+      'https://images.unsplash.com/photo-1601050690597-df0568f70950?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.0.3'
+    ],
     category: 'grains',
     quantity: 200,
     unit: 'kg',
@@ -98,7 +106,11 @@ export const mockProducts: Product[] = [
     name: 'Fresh Strawberries',
     description: 'Sweet and juicy strawberries, picked at peak ripeness.',
     price: 120,
-    images: ['https://images.unsplash.com/photo-1518635017498-87f514b751ba?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.0.3'],
+    images: [
+      'https://images.unsplash.com/photo-1518635017498-87f514b751ba?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.0.3',
+      'https://images.unsplash.com/photo-1596591606975-97ee5cef3a1e?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.0.3',
+      'https://images.unsplash.com/photo-1596591606975-97ee5cef3a1e?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.0.3'
+    ],
     category: 'fruits',
     quantity: 50,
     unit: 'kg',
@@ -114,7 +126,11 @@ export const mockProducts: Product[] = [
     name: 'Pure Honey',
     description: 'Raw, unfiltered honey from wildflower nectar.',
     price: 350,
-    images: ['https://images.unsplash.com/photo-1587049352851-8d4e89133924?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.0.3'],
+    images: [
+      'https://images.unsplash.com/photo-1587049352851-8d4e89133924?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.0.3',
+      'https://images.unsplash.com/photo-1587049352851-8d4e89133924?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.0.3',
+      'https://images.unsplash.com/photo-1587049352851-8d4e89133924?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.0.3'
+    ],
     category: 'honey',
     quantity: 30,
     unit: 'kg',
@@ -129,7 +145,11 @@ export const mockProducts: Product[] = [
     name: 'Fresh Spinach',
     description: 'Nutrient-rich spinach, harvested daily.',
     price: 40,
-    images: ['https://images.unsplash.com/photo-1576045057995-568f588f82fb?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.0.3'],
+    images: [
+      'https://images.unsplash.com/photo-1576045057995-568f588f82fb?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.0.3',
+      'https://images.unsplash.com/photo-1576045057995-568f588f82fb?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.0.3',
+      'https://images.unsplash.com/photo-1576045057995-568f588f82fb?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.0.3'
+    ],
     category: 'vegetables',
     quantity: 75,
     unit: 'kg',
@@ -151,7 +171,11 @@ export const mockPosts: Post[] = [
     userProfileImage: 'https://i.pravatar.cc/150?img=4',
     type: 'post',
     content: 'Just harvested a fresh batch of organic tomatoes! Available now.',
-    images: ['https://images.unsplash.com/photo-1546094096-0df4bcaaa337?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.0.3'],
+    images: [
+      'https://images.unsplash.com/photo-1546094096-0df4bcaaa337?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.0.3',
+      'https://images.unsplash.com/photo-1518977676601-b53f82aba655?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.0.3',
+      'https://images.unsplash.com/photo-1582284540020-8acbe03f4924?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.0.3'
+    ],
     linkedProducts: ['p1'],
     location: 'Punjab, India',
     createdAt: new Date('2023-06-01T09:30:00'),
@@ -202,7 +226,11 @@ export const mockPosts: Post[] = [
     userProfileImage: 'https://i.pravatar.cc/150?img=4',
     type: 'post',
     content: 'Our strawberry season is in full swing! Limited quantity available, order now!',
-    images: ['https://images.unsplash.com/photo-1596591606975-97ee5cef3a1e?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.0.3'],
+    images: [
+      'https://images.unsplash.com/photo-1596591606975-97ee5cef3a1e?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.0.3',
+      'https://images.unsplash.com/photo-1518635017498-87f514b751ba?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.0.3',
+      'https://images.unsplash.com/photo-1596591606975-97ee5cef3a1e?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.0.3'
+    ],
     linkedProducts: ['p3'],
     location: 'Punjab, India',
     createdAt: new Date('2023-06-03T11:20:00'),
@@ -281,7 +309,7 @@ export const mockCropRequests: CropRequest[] = [
     requesterId: '1',
     cropName: 'Purple Carrots',
     description: 'Looking for farmers who can grow organic purple carrots.',
-    image: 'https://images.unsplash.com/photo-1598170845058-c2edb8b0eb1b?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.0.3',
+    image: 'https://images.unsplash.com/photo-1648768940344-9e110879e0c0?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
     votes: 12,
     voterIds: ['1', '3'],
     status: 'open',

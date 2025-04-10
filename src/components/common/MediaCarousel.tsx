@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Play, Pause, ShoppingCart, ChevronLeft, ChevronRight } from 'lucide-react';
 import { addToCart } from '../../services/apiService';
 import { useToast } from '@/hooks/use-toast';
+import { useSwipeable } from 'react-swipeable';
 
 interface MediaCarouselProps {
   images: string[];
@@ -25,18 +26,9 @@ const MediaCarousel: React.FC<MediaCarouselProps> = ({
   const videoRef = useRef<HTMLVideoElement>(null);
   const lastTapTime = useRef(0);
   const [showAddToCartAnimation, setShowAddToCartAnimation] = useState(false);
+  const [touchStartX, setTouchStartX] = useState<number | null>(null);
 
   const mediaItems = video ? [...images, video] : images;
-
-  useEffect(() => {
-    if (loadedImages.size === images.length && (!video || videoRef.current?.readyState === 4)) {
-      onLoad?.();
-    }
-  }, [loadedImages, images.length, video, onLoad]);
-
-  const handleImageLoad = (src: string) => {
-    setLoadedImages(prev => new Set([...prev, src]));
-  };
 
   const handleTap = () => {
     const currentTime = new Date().getTime();
@@ -78,6 +70,23 @@ const MediaCarousel: React.FC<MediaCarouselProps> = ({
     }
   };
 
+  const swipeableRef = useSwipeable({
+    onSwipedLeft: () => handleSwipe('left'),
+    onSwipedRight: () => handleSwipe('right'),
+    trackMouse: true,
+    onTap: handleTap
+  });
+
+  useEffect(() => {
+    if (loadedImages.size === images.length && (!video || videoRef.current?.readyState === 4)) {
+      onLoad?.();
+    }
+  }, [loadedImages, images.length, video, onLoad]);
+
+  const handleImageLoad = (src: string) => {
+    setLoadedImages(prev => new Set([...prev, src]));
+  };
+
   const toggleVideoPlayback = () => {
     if (!videoRef.current) return;
     
@@ -115,9 +124,9 @@ const MediaCarousel: React.FC<MediaCarouselProps> = ({
   }
 
   return (
-    <div className="relative w-full h-full bg-black">
+    <div className="relative w-full h-full bg-black media-carousel-container">
       {/* Media Items */}
-      <div className="relative w-full h-full overflow-hidden">
+      <div className="relative w-full h-full overflow-hidden" {...swipeableRef}>
         {mediaItems.map((media, index) => (
           <div
             key={index}
@@ -151,7 +160,7 @@ const MediaCarousel: React.FC<MediaCarouselProps> = ({
       {currentIndex === mediaItems.length - 1 && video && (
         <button
           onClick={toggleVideoPlayback}
-          className="absolute top-4 right-4 p-2 bg-black/50 rounded-full text-white hover:bg-black/70 transition-colors"
+          className="absolute top-4 right-4 p-2 bg-black/50 rounded-full text-white hover:bg-black/70 transition-colors z-10"
         >
           {isVideoPlaying ? <Pause size={18} /> : <Play size={18} />}
         </button>
@@ -159,7 +168,7 @@ const MediaCarousel: React.FC<MediaCarouselProps> = ({
 
       {/* Media Indicators */}
       {mediaItems.length > 1 && (
-        <div className="absolute bottom-4 left-0 right-0 flex justify-center space-x-1">
+        <div className="absolute bottom-4 left-0 right-0 flex justify-center space-x-1 z-10">
           {mediaItems.map((_, index) => (
             <div
               key={index}
@@ -177,7 +186,7 @@ const MediaCarousel: React.FC<MediaCarouselProps> = ({
           {currentIndex > 0 && (
             <button
               onClick={() => handleSwipe('right')}
-              className="absolute left-2 top-1/2 -translate-y-1/2 p-1 rounded-full bg-white/70 hover:bg-white transition-colors"
+              className="absolute left-2 top-1/2 -translate-y-1/2 p-1 rounded-full bg-white/70 hover:bg-white transition-colors z-10"
             >
               <ChevronLeft size={20} className="text-gray-800" />
             </button>
@@ -185,7 +194,7 @@ const MediaCarousel: React.FC<MediaCarouselProps> = ({
           {currentIndex < mediaItems.length - 1 && (
             <button
               onClick={() => handleSwipe('left')}
-              className="absolute right-2 top-1/2 -translate-y-1/2 p-1 rounded-full bg-white/70 hover:bg-white transition-colors"
+              className="absolute right-2 top-1/2 -translate-y-1/2 p-1 rounded-full bg-white/70 hover:bg-white transition-colors z-10"
             >
               <ChevronRight size={20} className="text-gray-800" />
             </button>
@@ -195,18 +204,12 @@ const MediaCarousel: React.FC<MediaCarouselProps> = ({
 
       {/* Add to Cart Animation */}
       {showAddToCartAnimation && (
-        <div className="absolute inset-0 flex items-center justify-center">
+        <div className="absolute inset-0 flex items-center justify-center z-20">
           <div className="animate-ping">
             <ShoppingCart className="w-14 h-14 text-white drop-shadow-lg" />
           </div>
         </div>
       )}
-
-      {/* Tap Area */}
-      <div
-        className="absolute inset-0"
-        onClick={handleTap}
-      />
     </div>
   );
 };
