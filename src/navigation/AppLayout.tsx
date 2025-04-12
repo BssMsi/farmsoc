@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Home, Search, Calendar, ShoppingCart, User, PlusCircle, LineChart, Users, FileText, MessageSquare } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { UserRole } from '../types/user';
 import AiAgentButton from '../components/ai/AiAgentButton';
 import AiAgentChat from '../components/ai/AiAgentChat';
+import { useAiChat } from '../hooks/useAiChat';
 
 interface AppLayoutProps {
   children: React.ReactNode;
@@ -14,8 +15,19 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
-  const [isAiChatVisible, setIsAiChatVisible] = useState(false);
-  
+
+  const {
+    isChatVisible,
+    setIsChatVisible,
+    messages,
+    backendStatus,
+    isRecording,
+    isConnected,
+    startRecording,
+    stopRecording,
+    playAudio,
+  } = useAiChat();
+
   const renderBottomTabs = () => {
     const isActive = (path: string) => location.pathname === `/app/${path}`;
     
@@ -184,10 +196,17 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
 
       {isFarmer && (
         <>
-          <AiAgentButton onPress={() => setIsAiChatVisible(true)} />
+          <AiAgentButton onPress={() => setIsChatVisible(true)} />
           <AiAgentChat
-            visible={isAiChatVisible}
-            onClose={() => setIsAiChatVisible(false)}
+            visible={isChatVisible}
+            onClose={() => setIsChatVisible(false)}
+            messages={messages}
+            backendStatus={backendStatus}
+            isRecording={isRecording}
+            isConnected={isConnected}
+            onRecordStart={startRecording}
+            onRecordStop={stopRecording}
+            onPlayAudio={playAudio}
           />
         </>
       )}

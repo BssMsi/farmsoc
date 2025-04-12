@@ -24,3 +24,6 @@ dist-ssr
 *.sw?
 
 .cursor/
+venv/
+.cheatsheet.md
+.env

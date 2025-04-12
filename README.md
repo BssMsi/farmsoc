@@ -35,3 +35,22 @@ Please read our contributing guidelines before submitting pull requests.
 ## License
 
 This project is licensed under the MIT License.
+
+## Backend Development Progress
+
+### Pending Features
+
+- [ ] **WebSocket AI Chatbot Integration:**
+    - [x] Integrate Whisper STT (Kannada) # Using openai-whisper
+    - [x] Integrate LLM # Using Hugging Face Inference API (e.g., Mixtral)
+    - [x] Integrate TTS # Using facebook/mms-tts-kan
+- [ ] User Authentication
+- [ ] Farmer Product Management
+- [ ] Consumer Cart & Checkout
+- [ ] Messaging System
+- [ ] Events/Fundraising Module
+- [ ] Influencer Dashboard
+
+### Completed Features
+
+- [ ] Basic WebSocket Server Setup (echo)
