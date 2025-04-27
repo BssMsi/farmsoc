@@ -27,3 +27,6 @@ dist-ssr
 venv/
 .cheatsheet.md
 .env
+__pycache__/
+audio_files/
+app.db

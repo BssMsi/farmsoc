@@ -1,12 +1,13 @@
-from fastapi import APIRouter, WebSocket, WebSocketDisconnect
-from typing import List, Dict
+from fastapi import APIRouter, WebSocket, WebSocketDisconnect, Depends
+from typing import List, Dict, Optional, Any
 import logging
 import torch
 import tempfile
 import os
 import io
 from dotenv import load_dotenv
-from transformers import pipeline
+from transformers import pipeline, AutoProcessor, AutoTokenizer, AutoModelForCausalLM, BitsAndBytesConfig, AutoModel, AutoModelForSpeechSeq2Seq
+
 import soundfile as sf
 import librosa
 import numpy as np
@@ -14,6 +15,12 @@ import asyncio
 import base64
 import json
 import requests
+import time
+import random
+import uuid
+from transformers import WhisperProcessor, WhisperForConditionalGeneration
+
+from ..database import DBManager
 
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
@@ -21,69 +28,48 @@ logger = logging.getLogger(__name__)
 # Load environment variables (for API keys)
 load_dotenv() # Searches for .env file in current dir or parent dirs
 
+# Get Sarvam API key
+SARVAM_API_KEY = os.getenv("SARVAM_API_KEY")
+if not SARVAM_API_KEY:
+    logger.error("SARVAM_API_KEY not found in environment variables. API functionality will not work.")
+
 # Determine device for pipelines
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
-TORCH_DTYPE = torch.bfloat16 if DEVICE == "cuda" and torch.cuda.is_available() and hasattr(torch, 'bfloat16') else torch.float32 # Use bfloat16 if available on CUDA
+TORCH_DTYPE = torch.bfloat16 if DEVICE == "cuda" and torch.cuda.is_available() and hasattr(torch, 'bfloat16') else torch.float16 # Use bfloat16 if available on CUDA
 DEFAULT_SAMPLING_RATE = 16000 # From Shuka example
 
-# --- Hugging Face & TTS Configuration ---
-load_dotenv() # Ensure .env is loaded
-hf_token = os.getenv("HUGGING_FACE_HUB_TOKEN")
-sarvam_api_key = os.getenv("SARVAM_API_KEY") # Get Sarvam API Key
-SARVAM_STT_API_ENDPOINT = os.getenv("SARVAM_STT_API_ENDPOINT", "https://api.sarvam.ai/v1/voice/stt") # Get endpoint or use placeholder
+# Sarvam API endpoints
+SARVAM_STT_API_URL = "https://api.sarvam.ai/speech-to-text-translate"
+SARVAM_TTS_API_URL = "https://api.sarvam.ai/text-to-speech"
 
-# Check if HF token is loaded
-if not hf_token:
-    logger.warning("HUGGING_FACE_HUB_TOKEN not found in environment variables. LLM/TTS functionality might be limited or disabled.")
-    # Depending on the model, the Inference Client might work for some free models without a token, but rate limits will apply.
+# Create database manager
+db_manager = DBManager()
 
-# Check if Sarvam key is loaded
-if not sarvam_api_key:
-    logger.warning("SARVAM_API_KEY not found in environment variables. Shuka STT functionality will be disabled.")
-
-# TTS Model (Kannada)
-TTS_MODEL_ID = "facebook/mms-tts-kan"
-logger.info(f"Initializing TTS pipeline for model '{TTS_MODEL_ID}' on device '{DEVICE}'...")
-try:
-    # Initialize the pipeline.
-    tts_pipeline = pipeline("text-to-speech", model=TTS_MODEL_ID, device=DEVICE if DEVICE == "cpu" else 0, torch_dtype=TORCH_DTYPE)
-    logger.info(f"TTS pipeline for '{TTS_MODEL_ID}' initialized successfully.")
-except Exception as e:
-    logger.error(f"Failed to initialize TTS pipeline for '{TTS_MODEL_ID}': {e}")
-    tts_pipeline = None # Indicate pipeline initialization failed
-    # TODO: Add user-facing error message propagation if pipeline fails crucial init
-
-# --- Shuka Audio-Text-to-Text Pipeline Configuration ---
-SHUKA_MODEL_ID = "sarvamai/shuka-1"
-logger.info(f"Initializing main Shuka pipeline for model '{SHUKA_MODEL_ID}' on device '{DEVICE}' with dtype '{TORCH_DTYPE}'...")
-try:
-    # Initialize the single pipeline for Shuka
-    shuka_pipeline = pipeline(
-        model=SHUKA_MODEL_ID,
-        device=DEVICE if DEVICE == "cpu" else 0,
-        torch_dtype=TORCH_DTYPE,
-        trust_remote_code=True,
-        token=hf_token # Pass token if model is private/gated
-    )
-    logger.info(f"Shuka pipeline for '{SHUKA_MODEL_ID}' initialized successfully.")
-except Exception as e:
-    logger.error(f"Failed to initialize Shuka pipeline for '{SHUKA_MODEL_ID}': {e}", exc_info=True)
-    shuka_pipeline = None # Indicate pipeline initialization failed
-    # TODO: Add user-facing error message propagation if pipeline fails crucial init
+# Ensure audio directory exists
+audio_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))), "audio_files")
+os.makedirs(audio_dir, exist_ok=True)
 
 # Reintroduce ConnectionManager
 class ConnectionManager:
     def __init__(self):
         self.active_connections: Dict[str, WebSocket] = {}
+        self.user_sessions: Dict[str, str] = {}  # Map client_id to session_id
 
     async def connect(self, websocket: WebSocket, client_id: str):
         await websocket.accept()
         self.active_connections[client_id] = websocket
         logger.info(f"Client {client_id} connected. Total clients: {len(self.active_connections)}")
 
+        # Create or get session for this client - use async version to avoid blocking
+        session_id, _ = await db_manager.get_or_create_session_async(client_id)
+        self.user_sessions[client_id] = session_id
+        logger.info(f"Client {client_id} using session {session_id}")
+
     def disconnect(self, client_id: str):
          if client_id in self.active_connections:
             del self.active_connections[client_id]
+            if client_id in self.user_sessions:
+                del self.user_sessions[client_id]
             logger.info(f"Client {client_id} disconnected. Total clients: {len(self.active_connections)}")
 
     async def send_personal_message(self, message: str | bytes, client_id: str):
@@ -101,88 +87,227 @@ class ConnectionManager:
         for client_id in self.active_connections:
             await self.active_connections[client_id].send_text(message)
         logger.info(f"Broadcasted: {message[:50]}...")
+        
+    def get_session_id(self, client_id: str) -> Optional[str]:
+        """Get the session ID for a client."""
+        return self.user_sessions.get(client_id)
+    
+    def set_session_id(self, client_id: str, session_id: str):
+        """Set the session ID for a client."""
+        self.user_sessions[client_id] = session_id
 
 manager = ConnectionManager()
 
 # Router using the manager
 router = APIRouter()
 
-# Placeholder for conversation history (simple example)
-# TODO: Implement proper session management for history (e.g., Redis, DB)
-# TODO: Add unique interaction IDs to track requests/responses better
-conversation_history: Dict[str, List[Dict[str, str]]] = {}
-
-async def get_tts_audio(text: str) -> str | None:
-    """Synthesizes audio from text using the MMS-TTS model via pipeline and returns base64 encoded WAV."""
-    if not tts_pipeline:
-        logger.warning("TTS pipeline not initialized. Skipping TTS.")
+async def sarvam_speech_to_text(audio_bytes, client_id: str, session_id: str, prompt="") -> str | None:
+    """Convert speech to text using Sarvam.ai API and save audio file"""
+    if not SARVAM_API_KEY:
+        logger.error("SARVAM_API_KEY not available. Cannot process speech to text.")
         return None
-
+    
     try:
-        logger.info(f"Starting TTS synthesis via pipeline for text: {text[:50]}...")
-
-        # Run pipeline inference in a separate thread
-        synthesis_output = await asyncio.to_thread(tts_pipeline, text)
-
-        waveform = synthesis_output["audio"]
-        samplerate = synthesis_output["sampling_rate"]
-
-        logger.info(f"TTS synthesis successful. Waveform shape: {waveform.shape}, Sample rate: {samplerate}")
-
-        # Ensure waveform is 1D for soundfile if it's 2D mono
-        if waveform.ndim == 2 and waveform.shape[0] == 1:
-            waveform = waveform.squeeze(0)
-            # logger.info(f"Reshaped waveform to {waveform.shape}") # Less verbose logging
-
-        # Use soundfile to write to a bytes buffer
-        audio_buffer = io.BytesIO()
-        # Use await asyncio.to_thread for the blocking sf.write call
-        await asyncio.to_thread(sf.write, audio_buffer, waveform, samplerate, format='WAV', subtype='PCM_16')
-        audio_bytes = audio_buffer.getvalue()
-
-        # Encode audio bytes to base64 string
-        audio_base64 = base64.b64encode(audio_bytes).decode('utf-8')
-        logger.info(f"Generated TTS audio: {len(audio_bytes)} bytes, encoded to {len(audio_base64)} base64 chars")
-        return audio_base64
-
+        logger.info("Starting Sarvam.ai speech-to-text API call...")
+        
+        # Generate a unique filename using user_id, session_id and timestamp
+        timestamp = int(time.time())
+        audio_count = len([f for f in os.listdir(audio_dir) if f.startswith(f"{client_id}_{session_id}")])
+        audio_filename = f"{client_id}_{session_id}_audio{audio_count+1}.wav"
+        audio_path = os.path.join(audio_dir, audio_filename)
+        
+        # Save the audio file
+        with open(audio_path, 'wb') as f:
+            f.write(audio_bytes)
+        
+        logger.info(f"Saved audio file to {audio_path}")
+        
+        # Prepare API request
+        payload = {
+            'model': 'saaras:v2',
+            'prompt': prompt
+        }
+        
+        files = [
+            ('file', (audio_filename, open(audio_path, 'rb'), 'audio/wav'))
+        ]
+        
+        headers = {
+            'api-subscription-key': SARVAM_API_KEY
+        }
+        
+        # Make API request
+        response = await asyncio.to_thread(
+            requests.request,
+            "POST", 
+            SARVAM_STT_API_URL, 
+            headers=headers, 
+            data=payload, 
+            files=files
+        )
+        
+        # No need to delete the file as we want to keep it for training data
+        
+        if response.status_code == 200:
+            result = response.json()
+            logger.info(f"Sarvam STT API response: {result}")
+            transcription = result.get('text', '')
+            
+            # Return both the transcription and the audio filename for storage
+            return transcription, audio_filename
+        else:
+            logger.error(f"Sarvam STT API error: {response.status_code} - {response.text}")
+            return None, audio_filename
+            
     except Exception as e:
-        logger.error(f"Error during TTS synthesis pipeline: {e}", exc_info=True) # Log traceback
+        logger.error(f"Error in Sarvam speech-to-text API: {e}", exc_info=True)
+        return None, None
+
+async def call_english_agent_api(text_input, session_history):
+    """
+    Call English agent API with the complete conversation history.
+    This would be implemented based on the specific agent API details.
+    """
+    # TODO: Replace with actual English agent API call
+    # For now, we'll just echo back the input as a simple response
+    try:
+        # This is a placeholder - replace with actual API call
+        # Here we would pass the entire session_history to the API
+        logger.info(f"Calling English agent API with history of {len(session_history)} messages")
+        
+        # Just a simple response for now that acknowledges the history
+        if len(session_history) > 1:
+            previous_exchanges = len(session_history) // 2
+            response = f"This is response #{previous_exchanges+1} to: {text_input}"
+        else:
+            response = f"This is my first response to: {text_input}"
+            
+        return response
+    except Exception as e:
+        logger.error(f"Error calling English agent API: {e}", exc_info=True)
         return None
+
+async def sarvam_text_to_speech(text, target_language_code="en-IN") -> str | None:
+    """Convert text to speech using Sarvam.ai API"""
+    if not SARVAM_API_KEY:
+        logger.error("SARVAM_API_KEY not available. Cannot process text to speech.")
+        return None
+    
+    try:
+        logger.info(f"Starting Sarvam.ai text-to-speech API call for text: {text[:50]}...")
+        
+        # Prepare API request
+        payload = {
+            "inputs": [text],
+            "target_language_code": target_language_code,
+            "speech_sample_rate": 8000,
+            "enable_preprocessing": True,
+            "model": "bulbul:v2"
+        }
+        
+        headers = {
+            "Content-Type": "application/json",
+            "api-subscription-key": SARVAM_API_KEY
+        }
+        
+        # Make API request
+        response = await asyncio.to_thread(
+            requests.request,
+            "POST", 
+            SARVAM_TTS_API_URL, 
+            json=payload, 
+            headers=headers
+        )
+        
+        if response.status_code == 200:
+            result = response.json()
+            logger.info("Sarvam TTS API call successful")
+            
+            # Extract audio data
+            if "audio_content" in result:
+                audio_base64 = result["audio_content"]
+                return audio_base64
+            else:
+                logger.error(f"Unexpected TTS response format: {result}")
+                return None
+        else:
+            logger.error(f"Sarvam TTS API error: {response.status_code} - {response.text}")
+            return None
+            
+    except Exception as e:
+        logger.error(f"Error in Sarvam text-to-speech API: {e}", exc_info=True)
+        return None
+
+import magic
+def validate_audio_format(bytes_data):
+    file_type = magic.from_buffer(bytes_data)
+    if 'audio' not in file_type.lower() and 'mpeg' not in file_type.lower():
+        raise ValueError("Unsupported file format")
+from pydub import AudioSegment
 
 @router.websocket("/ws/{client_id}")
 async def websocket_endpoint(websocket: WebSocket, client_id: str):
     await manager.connect(websocket, client_id)
-    # Initialize history if not present, adding the system prompt
-    if client_id not in conversation_history:
-         conversation_history[client_id] = [
-            # System prompt - adjust content as needed for Shuka
-            {"role": "system", "content": "You are FarmSocial AI, a helpful assistant for Kannada-speaking farmers. Respond naturally and informatively in Kannada based on the user's voice or text input."}
-        ]
 
     try:
         while True:
             data = await websocket.receive()
             response_text = None
-            user_message_for_history = None # Store what the user actually said/typed
+            user_message = None  # The message to store in the database
+            session_id = manager.get_session_id(client_id)
+            
+            # Timestamp when message was received
+            received_timestamp = int(time.time())
+            
+            # Extract target language code if provided, default to Kannada
+            target_language_code = "en-IN"  # Default to Kannada
+            
+            # Check if data contains language parameter
+            if isinstance(data, dict) and "language" in data:
+                target_language_code = data["language"]
+            elif "text" in data and isinstance(data["text"], dict) and "language" in data["text"]:
+                target_language_code = data["text"]["language"]
+            elif "bytes" in data and isinstance(data["bytes"], dict) and "language" in data["bytes"]:
+                target_language_code = data["bytes"]["language"]
+                
+            logger.info(f"Using target language code: {target_language_code}")
+            
+            if not session_id:
+                logger.error(f"No session ID for client {client_id}")
+                await manager.send_personal_message(json.dumps({"status": "error", "message": "Session not found"}), client_id)
+                continue
 
-            if shuka_pipeline is None:
-                logger.error("Shuka pipeline not initialized. Cannot process request.")
+            if not SARVAM_API_KEY:
+                logger.error("SARVAM_API_KEY not available. Cannot process request.")
                 await manager.send_personal_message(json.dumps({"status": "error", "message": "AI processing service unavailable."}), client_id)
                 continue
 
-            # Build base turns from history (excluding the system prompt if the pipeline adds it implicitly)
-            # Let's assume the pipeline needs the full history including the system prompt
-            current_turns = list(conversation_history[client_id]) # Make a copy
-            pipeline_input = {}
+            # Get session history for context - use async version to avoid blocking
+            session_history = await db_manager.get_session_history_for_llm_async(session_id)
+            logger.info(f"Retrieved history for session {session_id}: {len(session_history)} messages")
 
             if "text" in data:
                 text_data = data["text"]
                 logger.info(f"Received text from {client_id}: {text_data}")
                 await manager.send_personal_message(json.dumps({"status": "processing_text", "message": "Processing text request..."}), client_id)
 
-                user_message_for_history = text_data
-                current_turns.append({"role": "user", "content": text_data})
-                pipeline_input = {"turns": current_turns}
+                # For text input, STT is skipped
+                stt_completed_timestamp = received_timestamp
+                
+                # Store user message in database with timestamps - don't await this to avoid blocking
+                db_manager.add_user_message_async(
+                    session_id, 
+                    text_data, 
+                    received_at=received_timestamp,
+                    stt_completed_at=stt_completed_timestamp
+                )
+                user_message = text_data
+                
+                # Call English agent API with the text and session history
+                await manager.send_personal_message(json.dumps({"status": "processing_llm", "message": "Thinking..."}), client_id)
+                response_text = await call_english_agent_api(text_data, session_history)
+                # Timestamp when LLM completed
+                llm_completed_timestamp = int(time.time())
 
             elif "bytes" in data:
                 bytes_data = data["bytes"]
@@ -190,128 +315,113 @@ async def websocket_endpoint(websocket: WebSocket, client_id: str):
                 await manager.send_personal_message(json.dumps({"status": "processing_audio", "message": "Processing audio..."}), client_id)
 
                 try:
-                    # Load audio using librosa from bytes
-                    # Use asyncio.to_thread for the potentially blocking librosa call
-                    def load_audio_data():
-                        audio_bytes = bytes_data # Keep original bytes
+                    # Convert audio format if needed
+                    def prepare_audio_data():
                         try:
-                            # Try loading with librosa first (handles various formats with headers)
-                            audio_array, sr = librosa.load(io.BytesIO(audio_bytes), sr=DEFAULT_SAMPLING_RATE)
-                            logger.info(f"Successfully loaded audio with librosa. Original SR inferred (if any): {sr}, Resampled to: {DEFAULT_SAMPLING_RATE}")
-                            return audio_array, DEFAULT_SAMPLING_RATE
-                        except sf.LibsndfileError as e:
-                            if "Format not recognised" in str(e) or "SoundfileError" in str(e): # Check specific error
-                                logger.warning(f"Librosa failed to recognize format: {e}. Assuming raw 16-bit PCM mono @ {DEFAULT_SAMPLING_RATE}Hz.")
-                                try:
-                                    # Assume raw 16-bit signed integer, mono PCM
-                                    # Ensure byte length is even for int16
-                                    if len(audio_bytes) % 2 != 0:
-                                         logger.warning(f"Audio byte length ({len(audio_bytes)}) is odd. Trimming last byte.")
-                                         audio_bytes = audio_bytes[:-1]
-                                    
-                                    raw_audio = np.frombuffer(audio_bytes, dtype=np.int16)
-                                    # Convert to float32 between -1.0 and 1.0
-                                    audio_array = raw_audio.astype(np.float32) / 32768.0
-                                    logger.info(f"Successfully loaded raw PCM audio. Shape: {audio_array.shape}")
-                                    return audio_array, DEFAULT_SAMPLING_RATE
-                                except Exception as raw_e:
-                                    logger.error(f"Failed to process data as raw PCM: {raw_e}", exc_info=True)
-                                    raise ValueError(f"Failed to process audio data as known format or raw PCM: {raw_e}") from raw_e # Re-raise specific error
-                            else:
-                                # Re-raise other libsndfile errors
-                                logger.error(f"Librosa/Soundfile loading error: {e}", exc_info=True)
-                                raise ValueError(f"Audio loading failed: {e}") from e # Re-raise other errors
-                        except Exception as general_e:
-                             # Catch any other unexpected errors during loading
-                             logger.error(f"Unexpected audio loading error: {general_e}", exc_info=True)
-                             raise ValueError(f"Unexpected error loading audio: {general_e}") from general_e
+                            audio_file = io.BytesIO(bytes_data)
+                            file_type = magic.from_buffer(bytes_data[:1024])  # Check first 1KB
+                            
+                            # Handle WebM/Matroska format specifically
+                            if 'WebM' in file_type or 'Matroska' in file_type:
+                                # Convert using pydub
+                                audio = AudioSegment.from_file(audio_file, format="webm")
+                                audio = audio.set_frame_rate(DEFAULT_SAMPLING_RATE).set_channels(1)
+                                
+                                # Convert to WAV format
+                                output_buffer = io.BytesIO()
+                                audio.export(output_buffer, format="wav")
+                                output_buffer.seek(0)
+                                return output_buffer.read()
+                            
+                            # If already in WAV format, return as is
+                            return bytes_data
+                            
+                        except Exception as e:
+                            logger.error(f"Error preparing audio: {e}", exc_info=True)
+                            raise ValueError(f"Audio preparation failed: {e}")
 
-                    audio_array, sampling_rate = await asyncio.to_thread(load_audio_data)
+                    # Prepare audio data for API
+                    prepared_audio = await asyncio.to_thread(prepare_audio_data)
 
-                    # Send status update: Thinking (covers both STT and generation)
+                    # Send status update: Processing speech to text
+                    await manager.send_personal_message(json.dumps({"status": "processing_stt", "message": "Converting speech to text..."}), client_id)
+
+                    # Call Sarvam STT API and get transcription and audio filename
+                    transcribed_text, audio_filename = await sarvam_speech_to_text(prepared_audio, client_id, session_id)
+                    
+                    # Timestamp when STT completed
+                    stt_completed_timestamp = int(time.time())
+                    
+                    if not transcribed_text:
+                        logger.error(f"Speech-to-text conversion failed for client {client_id}")
+                        await manager.send_personal_message(json.dumps({
+                            "status": "error",
+                            "message": "Failed to convert speech to text."
+                        }), client_id)
+                        continue
+                        
+                    logger.info(f"Transcribed text: {transcribed_text}")
+                    
+                    # Store user message with audio file reference, transcription and timestamps - don't await this to avoid blocking
+                    db_manager.add_user_message_async(
+                        session_id, 
+                        transcribed_text,
+                        audio_file=audio_filename,
+                        transcription=transcribed_text,
+                        received_at=received_timestamp,
+                        stt_completed_at=stt_completed_timestamp
+                    )
+                    user_message = transcribed_text
+
+                    # Send status update: Processing with LLM
                     await manager.send_personal_message(json.dumps({"status": "processing_llm", "message": "Thinking..."}), client_id)
-
-                    # Use placeholder for user content in history when input is audio
-                    user_message_for_history = "<audio_input>"
-                    current_turns.append({"role": "user", "content": "<|audio|>"}) # Special token for pipeline
-                    pipeline_input = {
-                        "audio": audio_array,
-                        "sampling_rate": sampling_rate,
-                        "turns": current_turns
-                    }
+                    
+                    # Call English agent API with the transcribed text and session history
+                    response_text = await call_english_agent_api(transcribed_text, session_history)
+                    # Timestamp when LLM completed
+                    llm_completed_timestamp = int(time.time())
 
                 except Exception as e:
                     logger.error(f"Error processing audio for {client_id}: {e}", exc_info=True)
                     await manager.send_personal_message(json.dumps({"status": "error", "message": f"Error processing audio: {e}"}), client_id)
                     continue # Skip to next message
 
-            # --- Call Shuka Pipeline --- #
-            if pipeline_input:
-                logger.info(f"Calling Shuka pipeline for {client_id}...")
-                logger.debug(f"Pipeline Input Keys: {list(pipeline_input.keys())}") # Log keys being sent
-                logger.debug(f"Turns being sent: {pipeline_input.get('turns')}") # Log turns
-
-                try:
-                    # Use asyncio.to_thread for the blocking pipeline call
-                    def run_shuka_pipeline():
-                        # max_new_tokens might be needed, adjust as necessary
-                        # Check pipeline output format - assuming it's a list with the generated text
-                        result = shuka_pipeline(pipeline_input, max_new_tokens=256) # Adjust max_new_tokens
-                        # --- Log the raw response received --- (Need to know result format)
-                        logger.debug(f"Raw Shuka Pipeline Response: {result}")
-                        # Extract text - This depends heavily on the pipeline's specific output structure!
-                        # Example guess: result might be a list of dictionaries
-                        if isinstance(result, list) and result:
-                            generated_content = result[0].get('generated_text')
-                            # Sometimes the output includes the whole conversation history
-                            # We might need to extract only the last assistant message
-                            if isinstance(generated_content, list):
-                                last_turn = generated_content[-1]
-                                if last_turn.get('role') == 'assistant':
-                                    return last_turn.get('content', "").strip()
-                            elif isinstance(generated_content, str):
-                                 # If it's just the response string
-                                 return generated_content.strip()
-                        # Fallback/alternative structure check?
-                        return None # Indicate failure if text not found
-
-                    response_text = await asyncio.to_thread(run_shuka_pipeline)
-
-                    if response_text:
-                        logger.info(f"Received Shuka response for {client_id}: {response_text[:100]}...")
-                    else:
-                        logger.error(f"Shuka pipeline did not return expected text output for {client_id}. Raw: {response_text}") # Log raw response if extraction failed
-                        response_text = None # Ensure it's None if extraction failed
-
-                except Exception as e:
-                    logger.error(f"Error calling Shuka pipeline for {client_id}: {e}", exc_info=True)
-                    await manager.send_personal_message(json.dumps({"status": "error", "message": f"Error generating response: {e}"}), client_id)
-                    response_text = None # Ensure failure
-
-            # --- Process Response (TTS and History) --- #
-            if user_message_for_history:
-                 # Add user message to history *before* adding assistant response
-                 conversation_history[client_id].append({"role": "user", "content": user_message_for_history})
-
+            # Process assistant response
             if response_text:
-                # Add assistant response to history
-                conversation_history[client_id].append({"role": "assistant", "content": response_text})
-
-                # Optional: Limit history size
-                MAX_HISTORY_LEN = 10 # Keep system + 4 pairs
-                if len(conversation_history[client_id]) > MAX_HISTORY_LEN:
-                     conversation_history[client_id] = [
-                         conversation_history[client_id][0]] + conversation_history[client_id][-MAX_HISTORY_LEN+1:]
-
-                # --- TTS --- #
+                # TTS using Sarvam API
                 await manager.send_personal_message(json.dumps({"status": "processing_tts", "message": "Generating audio response..."}), client_id)
-                audio_output_base64 = await get_tts_audio(response_text)
+                audio_output_base64 = await sarvam_text_to_speech(response_text, target_language_code=target_language_code)
+                
+                # Timestamp when TTS completed
+                tts_completed_timestamp = int(time.time())
+
+                # Add assistant response to database with timestamps - don't await this to avoid blocking
+                db_manager.add_assistant_message_async(
+                    session_id, 
+                    response_text,
+                    llm_completed_at=llm_completed_timestamp,
+                    tts_completed_at=tts_completed_timestamp
+                )
 
                 if audio_output_base64:
+                    # Calculate and log performance metrics
+                    stt_duration = stt_completed_timestamp - received_timestamp if stt_completed_timestamp and received_timestamp else 0
+                    llm_duration = llm_completed_timestamp - stt_completed_timestamp if llm_completed_timestamp and stt_completed_timestamp else 0
+                    tts_duration = tts_completed_timestamp - llm_completed_timestamp if tts_completed_timestamp and llm_completed_timestamp else 0
+                    total_duration = tts_completed_timestamp - received_timestamp if tts_completed_timestamp and received_timestamp else 0
+                    
+                    logger.info(f"Performance metrics for {client_id}: STT: {stt_duration}s, LLM: {llm_duration}s, TTS: {tts_duration}s, Total: {total_duration}s")
+                    
                     response_payload = {
                         "status": "response_ready",
                         "text": response_text,
-                        "audio_base64": audio_output_base64
+                        "audio_base64": audio_output_base64,
+                        "performance": {
+                            "stt_duration": stt_duration,
+                            "llm_duration": llm_duration,
+                            "tts_duration": tts_duration,
+                            "total_duration": total_duration
+                        }
                     }
                     await manager.send_personal_message(json.dumps(response_payload), client_id)
                 else:
@@ -321,24 +431,69 @@ async def websocket_endpoint(websocket: WebSocket, client_id: str):
                         "message": "Audio generation failed. Displaying text response.",
                         "text": response_text
                     }), client_id)
-            elif pipeline_input: # Only send error if we actually tried to process input
-                 # Shuka pipeline failed to return text
-                 error_message = "AI failed to generate a response."
-                 logger.error(f"Shuka Error for {client_id}: {error_message}")
-                 await manager.send_personal_message(json.dumps({"status": "error", "message": error_message}), client_id)
-
-            # else: No valid input (text/bytes) or audio processing failed earlier
+            else:
+                # API failed to return text
+                error_message = "AI failed to generate a response."
+                logger.error(f"API Error for {client_id}: {error_message}")
+                await manager.send_personal_message(json.dumps({"status": "error", "message": error_message}), client_id)
 
     except WebSocketDisconnect:
-        logger.info(f"WebSocket disconnected for client {client_id}. Clearing history.")
-        if client_id in conversation_history: del conversation_history[client_id]
+        logger.info(f"WebSocket disconnected for client {client_id}. Cleaning up resources.")
         manager.disconnect(client_id)
     except Exception as e:
         logger.error(f"Error in WebSocket endpoint for client {client_id}: {e}", exc_info=True)
-        # Clean up history and disconnect on general errors too
-        if client_id in conversation_history: del conversation_history[client_id]
+        # Clean up and disconnect on general errors too
         manager.disconnect(client_id)
 
+# Session management routes
+@router.post("/sessions/new")
+async def create_new_session(user_id: str):
+    """Create a new chat session for a user."""
+    try:
+        session_id, _ = await db_manager.create_session_async(user_id)
+        return {"status": "success", "session_id": session_id}
+    except Exception as e:
+        logger.error(f"Error creating new session: {e}", exc_info=True)
+        return {"status": "error", "message": str(e)}
+
+@router.get("/sessions/list")
+async def list_sessions(user_id: str):
+    """List all sessions for a user."""
+    try:
+        sessions = await db_manager.get_all_sessions_async(user_id)
+        return {"status": "success", "sessions": sessions}
+    except Exception as e:
+        logger.error(f"Error listing sessions: {e}", exc_info=True)
+        return {"status": "error", "message": str(e)}
+
+@router.post("/sessions/switch")
+async def switch_session(user_id: str, session_id: str):
+    """Switch the active session for a user."""
+    try:
+        success = await db_manager.switch_session_async(user_id, session_id)
+        if success:
+            # Update the session ID in the connection manager for any active connections
+            for client_id, ws in manager.active_connections.items():
+                if client_id == user_id:
+                    manager.set_session_id(client_id, session_id)
+            
+            return {"status": "success", "message": f"Switched to session {session_id}"}
+        else:
+            return {"status": "error", "message": "Failed to switch session"}
+    except Exception as e:
+        logger.error(f"Error switching session: {e}", exc_info=True)
+        return {"status": "error", "message": str(e)}
+
+@router.get("/sessions/{session_id}/history")
+async def get_session_history(session_id: str):
+    """Get the message history for a session."""
+    try:
+        messages = await db_manager.get_session_messages_async(session_id)
+        return {"status": "success", "messages": messages}
+    except Exception as e:
+        logger.error(f"Error retrieving session history: {e}", exc_info=True)
+        return {"status": "error", "message": str(e)}
+
 def get_websocket_router():
-    logger.info("Returning websocket router with ConnectionManager and Shuka pipeline.")
+    logger.info("Returning websocket router with ConnectionManager and Sarvam.ai API integration.")
     return router 
