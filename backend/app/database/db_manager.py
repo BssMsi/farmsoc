@@ -189,10 +189,10 @@ class DBManager:
         
         return message
     
-    async def add_user_message_async(self, session_id: str, content: str, audio_file: Optional[str] = None, 
+    def add_user_message_background(self, session_id: str, content: str, audio_file: Optional[str] = None, 
                               transcription: Optional[str] = None, received_at: Optional[int] = None,
-                              stt_completed_at: Optional[int] = None) -> Message:
-        """Add a user message to a session with performance tracking timestamps (async version)."""
+                              stt_completed_at: Optional[int] = None):
+        """Add a user message to a session in the background without waiting for completion."""
         # Start the database operation in a thread but don't block
         # Fire and forget to prevent blocking the main flow
         asyncio.create_task(
@@ -233,10 +233,10 @@ class DBManager:
         
         return message
     
-    async def add_assistant_message_async(self, session_id: str, content: str, 
+    def add_assistant_message_background(self, session_id: str, content: str, 
                                   llm_completed_at: Optional[int] = None,
-                                  tts_completed_at: Optional[int] = None) -> Message:
-        """Add an assistant message to a session with performance tracking timestamps (async version)."""
+                                  tts_completed_at: Optional[int] = None):
+        """Add an assistant message to a session in the background without waiting for completion."""
         # Start the database operation in a thread but don't block
         # Fire and forget to prevent blocking the main flow
         asyncio.create_task(

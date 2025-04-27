@@ -339,8 +339,8 @@ async def websocket_endpoint(websocket: WebSocket, client_id: str):
                 # For text input, STT is skipped
                 stt_completed_timestamp = received_timestamp
                 
-                # Store user message in database with timestamps - don't await this to avoid blocking
-                await db_manager.add_user_message_async(
+                # Store user message in database with timestamps in the background
+                db_manager.add_user_message_background(
                     session_id, 
                     text_data, 
                     received_at=received_timestamp,
@@ -407,8 +407,8 @@ async def websocket_endpoint(websocket: WebSocket, client_id: str):
                         
                     logger.debug(f"Transcribed text: {transcribed_text}")
 
-                    # Store user message with audio file reference, transcription and timestamps - don't await this to avoid blocking
-                    await db_manager.add_user_message_async(
+                    # Store user message with audio file reference in the background
+                    db_manager.add_user_message_background(
                         session_id, 
                         transcribed_text,
                         audio_file=audio_filename,
@@ -459,8 +459,8 @@ async def websocket_endpoint(websocket: WebSocket, client_id: str):
                 # Timestamp when TTS completed
                 tts_completed_timestamp = int(time.time())
 
-                # Add assistant response to database with timestamps - don't await this to avoid blocking
-                await db_manager.add_assistant_message_async(
+                # Add assistant response to database with timestamps in the background
+                db_manager.add_assistant_message_background(
                     session_id, 
                     original_response_text,  # Store original English response
                     llm_completed_at=llm_completed_timestamp,
