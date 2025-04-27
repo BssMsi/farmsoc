@@ -5,6 +5,8 @@ import torch
 import tempfile
 import os
 import io
+import magic
+from pydub import AudioSegment
 from dotenv import load_dotenv
 from transformers import pipeline, AutoProcessor, AutoTokenizer, AutoModelForCausalLM, BitsAndBytesConfig, AutoModel, AutoModelForSpeechSeq2Seq
 
@@ -41,6 +43,7 @@ DEFAULT_SAMPLING_RATE = 16000 # From Shuka example
 # Sarvam API endpoints
 SARVAM_STT_API_URL = "https://api.sarvam.ai/speech-to-text-translate"
 SARVAM_TTS_API_URL = "https://api.sarvam.ai/text-to-speech"
+SARVAM_TRANSLATE_API_URL = "https://api.sarvam.ai/translate"
 
 # Create database manager
 db_manager = DBManager()
@@ -63,7 +66,7 @@ class ConnectionManager:
         # Create or get session for this client - use async version to avoid blocking
         session_id, _ = await db_manager.get_or_create_session_async(client_id)
         self.user_sessions[client_id] = session_id
-        logger.info(f"Client {client_id} using session {session_id}")
+        logger.debug(f"Client {client_id} using session {session_id}")
 
     def disconnect(self, client_id: str):
          if client_id in self.active_connections:
@@ -81,12 +84,11 @@ class ConnectionManager:
                 await websocket.send_bytes(message)
             # Reduce log verbosity for potentially large messages like audio
             log_preview = message[:100] + "..." if isinstance(message, str) and len(message) > 100 else message
-            logger.info(f"Sent to {client_id}: {type(message)} ({len(message)} bytes/chars) Preview: {log_preview}")
 
     async def broadcast(self, message: str):
         for client_id in self.active_connections:
             await self.active_connections[client_id].send_text(message)
-        logger.info(f"Broadcasted: {message[:50]}...")
+        logger.info(f"Broadcasted: {message[:10]}...")
         
     def get_session_id(self, client_id: str) -> Optional[str]:
         """Get the session ID for a client."""
@@ -108,24 +110,22 @@ async def sarvam_speech_to_text(audio_bytes, client_id: str, session_id: str, pr
         return None
     
     try:
-        logger.info("Starting Sarvam.ai speech-to-text API call...")
-        
         # Generate a unique filename using user_id, session_id and timestamp
         timestamp = int(time.time())
-        audio_count = len([f for f in os.listdir(audio_dir) if f.startswith(f"{client_id}_{session_id}")])
-        audio_filename = f"{client_id}_{session_id}_audio{audio_count+1}.wav"
+        audio_filename = f"{client_id}_{session_id}_{timestamp}.wav"
         audio_path = os.path.join(audio_dir, audio_filename)
         
         # Save the audio file
         with open(audio_path, 'wb') as f:
             f.write(audio_bytes)
         
-        logger.info(f"Saved audio file to {audio_path}")
+        logger.debug(f"Saved audio file to {audio_path}")
         
         # Prepare API request
         payload = {
             'model': 'saaras:v2',
-            'prompt': prompt
+            'prompt': prompt,
+            'with_diarization': False
         }
         
         files = [
@@ -146,22 +146,20 @@ async def sarvam_speech_to_text(audio_bytes, client_id: str, session_id: str, pr
             files=files
         )
         
-        # No need to delete the file as we want to keep it for training data
-        
         if response.status_code == 200:
             result = response.json()
-            logger.info(f"Sarvam STT API response: {result}")
-            transcription = result.get('text', '')
-            
+            logger.debug(f"Sarvam STT API response: {result}")
+            transcription = result.get('transcript', '')
+            detected_language_code = result.get('language_code', '')
             # Return both the transcription and the audio filename for storage
-            return transcription, audio_filename
+            return transcription, audio_filename, detected_language_code
         else:
             logger.error(f"Sarvam STT API error: {response.status_code} - {response.text}")
-            return None, audio_filename
+            return None, audio_filename, None
             
     except Exception as e:
         logger.error(f"Error in Sarvam speech-to-text API: {e}", exc_info=True)
-        return None, None
+        return None, None, None
 
 async def call_english_agent_api(text_input, session_history):
     """
@@ -173,7 +171,7 @@ async def call_english_agent_api(text_input, session_history):
     try:
         # This is a placeholder - replace with actual API call
         # Here we would pass the entire session_history to the API
-        logger.info(f"Calling English agent API with history of {len(session_history)} messages")
+        logger.debug(f"Calling English agent API with history of {len(session_history)} messages")
         
         # Just a simple response for now that acknowledges the history
         if len(session_history) > 1:
@@ -187,19 +185,19 @@ async def call_english_agent_api(text_input, session_history):
         logger.error(f"Error calling English agent API: {e}", exc_info=True)
         return None
 
-async def sarvam_text_to_speech(text, target_language_code="en-IN") -> str | None:
+async def sarvam_text_to_speech(text, target_lang_code="en-IN") -> str | None:
     """Convert text to speech using Sarvam.ai API"""
     if not SARVAM_API_KEY:
         logger.error("SARVAM_API_KEY not available. Cannot process text to speech.")
         return None
     
     try:
-        logger.info(f"Starting Sarvam.ai text-to-speech API call for text: {text[:50]}...")
+        logger.debug(f"Starting Sarvam.ai text-to-speech API call for {len(text)} characters...")
         
         # Prepare API request
         payload = {
             "inputs": [text],
-            "target_language_code": target_language_code,
+            "target_language_code": target_lang_code,
             "speech_sample_rate": 8000,
             "enable_preprocessing": True,
             "model": "bulbul:v2"
@@ -221,11 +219,11 @@ async def sarvam_text_to_speech(text, target_language_code="en-IN") -> str | Non
         
         if response.status_code == 200:
             result = response.json()
-            logger.info("Sarvam TTS API call successful")
+            logger.debug(f"Sarvam TTS API call successful to language={target_lang_code}")
             
             # Extract audio data
-            if "audio_content" in result:
-                audio_base64 = result["audio_content"]
+            if "audios" in result:
+                audio_base64 = result["audios"][0]
                 return audio_base64
             else:
                 logger.error(f"Unexpected TTS response format: {result}")
@@ -238,12 +236,60 @@ async def sarvam_text_to_speech(text, target_language_code="en-IN") -> str | Non
         logger.error(f"Error in Sarvam text-to-speech API: {e}", exc_info=True)
         return None
 
-import magic
-def validate_audio_format(bytes_data):
-    file_type = magic.from_buffer(bytes_data)
-    if 'audio' not in file_type.lower() and 'mpeg' not in file_type.lower():
-        raise ValueError("Unsupported file format")
-from pydub import AudioSegment
+async def sarvam_translate(text, source_language_code="en-IN", target_language_code="kn-IN") -> str | None:
+    """Translate text using Sarvam.ai API"""
+    if not SARVAM_API_KEY:
+        logger.error("SARVAM_API_KEY not available. Cannot translate text.")
+        return text  # Return original text if API key not available
+    
+    try:
+        logger.debug(f"Starting Sarvam.ai translation API call for {len(text)} characters from {source_language_code} to {target_language_code}")
+        
+        # Prepare API request
+        payload = {
+            "input": text,
+            "source_language_code": source_language_code,
+            "target_language_code": target_language_code,
+            "speaker_gender": "Female",
+            "mode": "formal",
+            "model": "mayura:v1",
+            "enable_preprocessing": False,
+            "output_script": "spoken-form-in-native",
+            "numerals_format": "native"
+        }
+        
+        headers = {
+            "Content-Type": "application/json",
+            "api-subscription-key": SARVAM_API_KEY
+        }
+        
+        # Make API request
+        response = await asyncio.to_thread(
+            requests.request,
+            "POST", 
+            SARVAM_TRANSLATE_API_URL, 
+            json=payload, 
+            headers=headers
+        )
+        
+        if response.status_code == 200:
+            result = response.json()
+            logger.debug(f"Sarvam Translation API call successful")
+            
+            # Extract translated text
+            translated_text = result.get("translated_text")
+            if translated_text:
+                return translated_text
+            else:
+                logger.error(f"Unexpected translation response format: {result}")
+                return text  # Return original text on unexpected response format
+        else:
+            logger.error(f"Sarvam Translation API error: {response.status_code} - {response.text}")
+            return text  # Return original text on API error
+            
+    except Exception as e:
+        logger.error(f"Error in Sarvam translation API: {e}", exc_info=True)
+        return text  # Return original text on exception
 
 @router.websocket("/ws/{client_id}")
 async def websocket_endpoint(websocket: WebSocket, client_id: str):
@@ -258,9 +304,8 @@ async def websocket_endpoint(websocket: WebSocket, client_id: str):
             
             # Timestamp when message was received
             received_timestamp = int(time.time())
-            
-            # Extract target language code if provided, default to Kannada
-            target_language_code = "en-IN"  # Default to Kannada
+
+            target_language_code = "en-IN"
             
             # Check if data contains language parameter
             if isinstance(data, dict) and "language" in data:
@@ -270,7 +315,7 @@ async def websocket_endpoint(websocket: WebSocket, client_id: str):
             elif "bytes" in data and isinstance(data["bytes"], dict) and "language" in data["bytes"]:
                 target_language_code = data["bytes"]["language"]
                 
-            logger.info(f"Using target language code: {target_language_code}")
+            logger.debug(f"Using target language code: {target_language_code}")
             
             if not session_id:
                 logger.error(f"No session ID for client {client_id}")
@@ -284,11 +329,11 @@ async def websocket_endpoint(websocket: WebSocket, client_id: str):
 
             # Get session history for context - use async version to avoid blocking
             session_history = await db_manager.get_session_history_for_llm_async(session_id)
-            logger.info(f"Retrieved history for session {session_id}: {len(session_history)} messages")
+            logger.debug(f"Retrieved history for session {session_id}: {len(session_history)} messages")
 
             if "text" in data:
                 text_data = data["text"]
-                logger.info(f"Received text from {client_id}: {text_data}")
+                logger.debug(f"Received text from {client_id}: {text_data}")
                 await manager.send_personal_message(json.dumps({"status": "processing_text", "message": "Processing text request..."}), client_id)
 
                 # For text input, STT is skipped
@@ -311,7 +356,7 @@ async def websocket_endpoint(websocket: WebSocket, client_id: str):
 
             elif "bytes" in data:
                 bytes_data = data["bytes"]
-                logger.info(f"Received audio bytes from {client_id}: {len(bytes_data)} bytes")
+                logger.debug(f"Received audio bytes from {client_id}: {len(bytes_data)} bytes")
                 await manager.send_personal_message(json.dumps({"status": "processing_audio", "message": "Processing audio..."}), client_id)
 
                 try:
@@ -347,7 +392,7 @@ async def websocket_endpoint(websocket: WebSocket, client_id: str):
                     await manager.send_personal_message(json.dumps({"status": "processing_stt", "message": "Converting speech to text..."}), client_id)
 
                     # Call Sarvam STT API and get transcription and audio filename
-                    transcribed_text, audio_filename = await sarvam_speech_to_text(prepared_audio, client_id, session_id)
+                    transcribed_text, audio_filename, detected_language_code = await sarvam_speech_to_text(prepared_audio, client_id, session_id)
                     
                     # Timestamp when STT completed
                     stt_completed_timestamp = int(time.time())
@@ -360,8 +405,8 @@ async def websocket_endpoint(websocket: WebSocket, client_id: str):
                         }), client_id)
                         continue
                         
-                    logger.info(f"Transcribed text: {transcribed_text}")
-                    
+                    logger.debug(f"Transcribed text: {transcribed_text}")
+
                     # Store user message with audio file reference, transcription and timestamps - don't await this to avoid blocking
                     db_manager.add_user_message_async(
                         session_id, 
@@ -388,9 +433,28 @@ async def websocket_endpoint(websocket: WebSocket, client_id: str):
 
             # Process assistant response
             if response_text:
+                # Store original English response
+                original_response_text = response_text
+                
+                # Translate if needed (detected_language_code exists and is not English)
+                translation_start_timestamp = None
+                translation_completed_timestamp = None
+                
+                if detected_language_code and detected_language_code != "en-IN":
+                    translation_start_timestamp = int(time.time())
+                    await manager.send_personal_message(json.dumps({"status": "processing_translation", "message": "Translating response..."}), client_id)
+                    translated_text = await sarvam_translate(response_text, "en-IN", detected_language_code)
+                    translation_completed_timestamp = int(time.time())
+                    if translated_text:
+                        response_text = translated_text
+                        logger.debug(f"Translated response from English to {detected_language_code}")
+                
+                # Determine the target language for TTS
+                tts_language_code = detected_language_code if detected_language_code else target_language_code
+                
                 # TTS using Sarvam API
                 await manager.send_personal_message(json.dumps({"status": "processing_tts", "message": "Generating audio response..."}), client_id)
-                audio_output_base64 = await sarvam_text_to_speech(response_text, target_language_code=target_language_code)
+                audio_output_base64 = await sarvam_text_to_speech(response_text, target_lang_code=tts_language_code)
                 
                 # Timestamp when TTS completed
                 tts_completed_timestamp = int(time.time())
@@ -398,7 +462,7 @@ async def websocket_endpoint(websocket: WebSocket, client_id: str):
                 # Add assistant response to database with timestamps - don't await this to avoid blocking
                 db_manager.add_assistant_message_async(
                     session_id, 
-                    response_text,
+                    original_response_text,  # Store original English response
                     llm_completed_at=llm_completed_timestamp,
                     tts_completed_at=tts_completed_timestamp
                 )
@@ -407,10 +471,11 @@ async def websocket_endpoint(websocket: WebSocket, client_id: str):
                     # Calculate and log performance metrics
                     stt_duration = stt_completed_timestamp - received_timestamp if stt_completed_timestamp and received_timestamp else 0
                     llm_duration = llm_completed_timestamp - stt_completed_timestamp if llm_completed_timestamp and stt_completed_timestamp else 0
-                    tts_duration = tts_completed_timestamp - llm_completed_timestamp if tts_completed_timestamp and llm_completed_timestamp else 0
+                    translation_duration = translation_completed_timestamp - translation_start_timestamp if translation_completed_timestamp and translation_start_timestamp else 0
+                    tts_duration = tts_completed_timestamp - (translation_completed_timestamp or llm_completed_timestamp) if tts_completed_timestamp else 0
                     total_duration = tts_completed_timestamp - received_timestamp if tts_completed_timestamp and received_timestamp else 0
                     
-                    logger.info(f"Performance metrics for {client_id}: STT: {stt_duration}s, LLM: {llm_duration}s, TTS: {tts_duration}s, Total: {total_duration}s")
+                    logger.info(f"Performance metrics for {client_id}: STT: {stt_duration}s, LLM: {llm_duration}s, Translation: {translation_duration}s, TTS: {tts_duration}s, Total: {total_duration}s")
                     
                     response_payload = {
                         "status": "response_ready",
@@ -419,6 +484,7 @@ async def websocket_endpoint(websocket: WebSocket, client_id: str):
                         "performance": {
                             "stt_duration": stt_duration,
                             "llm_duration": llm_duration,
+                            "translation_duration": translation_duration,
                             "tts_duration": tts_duration,
                             "total_duration": total_duration
                         }
@@ -429,7 +495,13 @@ async def websocket_endpoint(websocket: WebSocket, client_id: str):
                     await manager.send_personal_message(json.dumps({
                         "status": "error",
                         "message": "Audio generation failed. Displaying text response.",
-                        "text": response_text
+                        "text": response_text,
+                        "performance": {
+                            "stt_duration": stt_duration,
+                            "llm_duration": llm_duration,
+                            "translation_duration": translation_duration,
+                            "total_duration": llm_completed_timestamp - received_timestamp if llm_completed_timestamp and received_timestamp else 0
+                        }
                     }), client_id)
             else:
                 # API failed to return text
@@ -438,7 +510,7 @@ async def websocket_endpoint(websocket: WebSocket, client_id: str):
                 await manager.send_personal_message(json.dumps({"status": "error", "message": error_message}), client_id)
 
     except WebSocketDisconnect:
-        logger.info(f"WebSocket disconnected for client {client_id}. Cleaning up resources.")
+        logger.debug(f"WebSocket disconnected for client {client_id}. Cleaning up resources.")
         manager.disconnect(client_id)
     except Exception as e:
         logger.error(f"Error in WebSocket endpoint for client {client_id}: {e}", exc_info=True)
@@ -495,5 +567,4 @@ async def get_session_history(session_id: str):
         return {"status": "error", "message": str(e)}
 
 def get_websocket_router():
-    logger.info("Returning websocket router with ConnectionManager and Sarvam.ai API integration.")
     return router 

@@ -78,8 +78,8 @@ function isReadyResponseMessage(msg: any): msg is ReadyResponseMessage {
 
 // Use import.meta.env for Vite environment variables
 // Ensure VITE_WEBSOCKET_URL is defined in your .env file
-const WEBSOCKET_URL = import.meta.env.VITE_WEBSOCKET_URL || 'ws://localhost:8000/ws';
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+const WEBSOCKET_URL = import.meta.env.VITE_WEBSOCKET_URL || 'ws://140.245.233.27:8080/ws';
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://140.245.233.27:8080';
 const CLIENT_ID = `web-${Date.now()}-${Math.random().toString(16).substring(2, 8)}`;
 
 export function useAiChat() {
