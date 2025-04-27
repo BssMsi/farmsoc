@@ -34,7 +34,42 @@ interface ReadyResponseMessage {
     status: 'response_ready';
     text: string;
     audio_base64: string;
+    performance?: {
+      stt_duration: number;
+      llm_duration: number;
+      tts_duration: number;
+      total_duration: number;
+    };
 }
+
+// Session interface
+export interface ChatSession {
+  session_id: string;
+  created_at: string;
+  last_interaction: string;
+  is_active: boolean;
+}
+
+// Language options
+export interface LanguageOption {
+  code: string;
+  name: string;
+  flag?: string; // Optional emoji or image path
+}
+
+// Available languages based on backend support
+export const SUPPORTED_LANGUAGES: LanguageOption[] = [
+  { code: 'en-IN', name: 'English', flag: '🇮🇳' },
+  { code: 'hi-IN', name: 'Hindi', flag: '🇮🇳' },
+  { code: 'kn-IN', name: 'Kannada', flag: '🇮🇳' },
+  { code: 'te-IN', name: 'Telugu', flag: '🇮🇳' },
+  { code: 'ta-IN', name: 'Tamil', flag: '🇮🇳' },
+  { code: 'ml-IN', name: 'Malayalam', flag: '🇮🇳' },
+  { code: 'bn-IN', name: 'Bengali', flag: '🇮🇳' },
+  { code: 'mr-IN', name: 'Marathi', flag: '🇮🇳' },
+  { code: 'gu-IN', name: 'Gujarati', flag: '🇮🇳' },
+  { code: 'pa-IN', name: 'Punjabi', flag: '🇮🇳' }
+];
 
 // Type guard to check if a message is ReadyResponseMessage
 function isReadyResponseMessage(msg: any): msg is ReadyResponseMessage {
@@ -44,6 +79,7 @@ function isReadyResponseMessage(msg: any): msg is ReadyResponseMessage {
 // Use import.meta.env for Vite environment variables
 // Ensure VITE_WEBSOCKET_URL is defined in your .env file
 const WEBSOCKET_URL = import.meta.env.VITE_WEBSOCKET_URL || 'ws://localhost:8000/ws';
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 const CLIENT_ID = `web-${Date.now()}-${Math.random().toString(16).substring(2, 8)}`;
 
 export function useAiChat() {
@@ -53,12 +89,125 @@ export function useAiChat() {
   const [backendStatus, setBackendStatus] = useState<BackendStatus>({ status: 'idle' });
   const [isRecording, setIsRecording] = useState(false);
   const [isConnected, setIsConnected] = useState(false);
+  
+  // Language selection - default to English
+  const [selectedLanguage, setSelectedLanguage] = useState<LanguageOption>(SUPPORTED_LANGUAGES[0]);
+  
+  // Session management
+  const [availableSessions, setAvailableSessions] = useState<ChatSession[]>([]);
+  const [currentSession, setCurrentSession] = useState<ChatSession | null>(null);
+  const [isLoadingSessions, setIsLoadingSessions] = useState(false);
+  
   const ws = useRef<WebSocket | null>(null);
   const mediaRecorder = useRef<MediaRecorder | null>(null);
   const audioChunks = useRef<Blob[]>([]);
   const audioContext = useRef<AudioContext | null>(null);
   // Ref to keep track of the last message ID for potential status updates
   const lastStatusMessageId = useRef<string | null>(null);
+
+  // --- Session Management Functions ---
+  const fetchSessions = useCallback(async () => {
+    setIsLoadingSessions(true);
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/sessions/list?user_id=${CLIENT_ID}`);
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+      if (data.status === 'success' && Array.isArray(data.sessions)) {
+        setAvailableSessions(data.sessions);
+        // Set current session to the active one, if any
+        const activeSession = data.sessions.find((s: ChatSession) => s.is_active);
+        if (activeSession) {
+          setCurrentSession(activeSession);
+        }
+      } else {
+        console.error('Invalid sessions data received:', data);
+      }
+    } catch (error) {
+      console.error('Error fetching sessions:', error);
+    } finally {
+      setIsLoadingSessions(false);
+    }
+  }, [CLIENT_ID]);
+
+  const createNewSession = useCallback(async () => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/sessions/new?user_id=${CLIENT_ID}`, {
+        method: 'POST',
+      });
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+      if (data.status === 'success' && data.session_id) {
+        // Refresh sessions list to include new session
+        await fetchSessions();
+        return data.session_id;
+      } else {
+        console.error('Invalid response when creating session:', data);
+        return null;
+      }
+    } catch (error) {
+      console.error('Error creating new session:', error);
+      return null;
+    }
+  }, [CLIENT_ID, fetchSessions]);
+
+  const switchSession = useCallback(async (sessionId: string) => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/sessions/switch?user_id=${CLIENT_ID}&session_id=${sessionId}`, {
+        method: 'POST',
+      });
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+      if (data.status === 'success') {
+        // Refresh sessions to update active status
+        await fetchSessions();
+        // Clear messages and load messages for this session
+        await fetchSessionMessages(sessionId);
+        return true;
+      } else {
+        console.error('Failed to switch session:', data);
+        return false;
+      }
+    } catch (error) {
+      console.error('Error switching session:', error);
+      return false;
+    }
+  }, [CLIENT_ID, fetchSessions]);
+
+  const fetchSessionMessages = useCallback(async (sessionId: string) => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/sessions/${sessionId}/history`);
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+      if (data.status === 'success' && Array.isArray(data.messages)) {
+        // Convert backend messages to ChatMessage format
+        const chatMessages: ChatMessage[] = data.messages.map((msg: any) => ({
+          id: `${msg.timestamp}-${msg.role}`,
+          sender: msg.role === 'user' ? 'user' : msg.role === 'assistant' ? 'ai' : 'status',
+          type: 'text',
+          content: msg.content,
+          timestamp: new Date(msg.timestamp).getTime(),
+          // Add audio if available for assistant messages
+          ...(msg.role === 'assistant' && msg.audio_file ? { audioBase64: msg.audio_file } : {}),
+        }));
+        setMessages(chatMessages);
+        return true;
+      } else {
+        console.error('Invalid session messages data:', data);
+        return false;
+      }
+    } catch (error) {
+      console.error('Error fetching session messages:', error);
+      return false;
+    }
+  }, []);
 
   // --- WebSocket Management ---
   const connectWebSocket = useCallback(() => {
@@ -88,6 +237,9 @@ export function useAiChat() {
             console.log('[WebSocket] onopen fired. ws.current:', ws.current);
             setIsConnected(true);
             setBackendStatus({ status: 'connected', message: 'Connected. Ready to chat.' });
+            
+            // Fetch sessions when connected
+            fetchSessions();
         };
 
         console.log("[WebSocket] Assigning onerror handler...");
@@ -139,6 +291,11 @@ export function useAiChat() {
                         setMessages(prev => [...prev, newMessage]);
                         playAudio(backendMsg.audio_base64);
                         lastStatusMessageId.current = null;
+                        
+                        // Log performance metrics if available
+                        if (backendMsg.performance) {
+                          console.log('Performance metrics:', backendMsg.performance);
+                        }
                     } else {
                         const backendMsg = parsedData as BackendStatus;
                         console.log(`[WebSocket] Handling status message: ${backendMsg.status}`);
@@ -228,7 +385,7 @@ export function useAiChat() {
         ws.current = null; // Ensure ws.current is null if constructor fails
         return;
     }
-  }, []);
+  }, [fetchSessions]);
 
   const disconnectWebSocket = useCallback(() => {
     if (ws.current) {
@@ -277,16 +434,40 @@ export function useAiChat() {
         const audioBlob = new Blob(audioChunks.current, { type: mediaRecorder.current?.mimeType || 'audio/wav' });
 
         if (ws.current && ws.current.readyState === WebSocket.OPEN) {
-          console.log(`Attempting to send audio blob: ${audioBlob.size} bytes, type: ${audioBlob.type}`);
-          ws.current.send(audioBlob);
-          console.log("Audio blob sent via WebSocket.");
+          try {
+            // Create a JSON message with language and binary data
+            // For audio, we need special handling
+            const languageMsg = { language: selectedLanguage.code };
+            const jsonString = JSON.stringify(languageMsg);
+            
+            // Log the language we're using
+            console.log(`Sending audio with language: ${selectedLanguage.code}`);
+            
+            // Send binary data directly, with language as part of the message metadata
+            // The backend will extract this from the request
+            ws.current.send(audioBlob);
+            
+            // Optionally send language info in a separate message if needed
+            // ws.current.send(jsonString);
+            
+            console.log("Audio blob sent via WebSocket.");
 
-          // Add a placeholder message for the user's audio
-          const sendingMsgId = Date.now().toString();
-          const optimisticMessage: ChatMessage = { id: sendingMsgId, sender: 'user', type: 'processing', content: 'You (audio) - Sending...', timestamp: Date.now() };
-          setMessages(prev => [...prev, optimisticMessage]);
-          console.log("Added optimistic sending message:", optimisticMessage);
-          lastStatusMessageId.current = sendingMsgId; // Track this message for potential updates
+            // Add a placeholder message for the user's audio
+            const sendingMsgId = Date.now().toString();
+            const optimisticMessage: ChatMessage = { 
+              id: sendingMsgId, 
+              sender: 'user', 
+              type: 'processing', 
+              content: `You (audio in ${selectedLanguage.name}) - Sending...`, 
+              timestamp: Date.now() 
+            };
+            setMessages(prev => [...prev, optimisticMessage]);
+            console.log("Added optimistic sending message:", optimisticMessage);
+            lastStatusMessageId.current = sendingMsgId; // Track this message for potential updates
+          } catch (err) {
+            console.error('Error sending audio data:', err);
+            setBackendStatus({ status: 'error', message: 'Failed to send audio. Please try again.'});
+          }
         } else {
            console.error('WebSocket not open when trying to send audio.');
            setBackendStatus({ status: 'error', message: 'Connection lost before sending. Please try again.'}); // More specific error
@@ -332,6 +513,54 @@ export function useAiChat() {
     // Update status after stopping recording, before sending starts
     setBackendStatus({ status: 'connected', message: 'Sending audio...' });
   };
+
+  // Send text message directly
+  const sendTextMessage = useCallback((text: string) => {
+    if (!isConnected || !ws.current || ws.current.readyState !== WebSocket.OPEN) {
+      console.error('Cannot send message: WebSocket not connected.');
+      setBackendStatus({ status: 'error', message: 'Not connected. Please wait or reconnect.'});
+      return;
+    }
+
+    try {
+      // Create message with text and language
+      const message = {
+        text: text,
+        language: selectedLanguage.code
+      };
+
+      // Send as JSON
+      ws.current.send(JSON.stringify(message));
+      console.log(`Sent text message with language: ${selectedLanguage.code}`);
+
+      // Add user message to chat
+      const timestamp = Date.now();
+      const userMessage: ChatMessage = {
+        id: timestamp.toString(),
+        sender: 'user',
+        type: 'text',
+        content: text,
+        timestamp
+      };
+      setMessages(prev => [...prev, userMessage]);
+
+      // Add processing message
+      const processingMsgId = (timestamp + 1).toString();
+      const processingMessage: ChatMessage = {
+        id: processingMsgId,
+        sender: 'status',
+        type: 'processing',
+        content: 'Processing your message...',
+        timestamp: timestamp + 1
+      };
+      setMessages(prev => [...prev, processingMessage]);
+      lastStatusMessageId.current = processingMsgId;
+
+    } catch (err) {
+      console.error('Error sending text message:', err);
+      setBackendStatus({ status: 'error', message: 'Failed to send message. Please try again.'});
+    }
+  }, [isConnected, selectedLanguage.code]);
 
   // --- Audio Playback (Now expects Base64) ---
   const playAudio = useCallback(async (audioBase64: string) => {
@@ -402,6 +631,20 @@ export function useAiChat() {
     startRecording,
     stopRecording,
     playAudio, // Expose playAudio for replaying messages
-    // No explicit sendMessage needed as sending is handled by stopRecording
+    sendTextMessage, // Add direct text message sending
+    
+    // Language selection
+    selectedLanguage,
+    setSelectedLanguage,
+    supportedLanguages: SUPPORTED_LANGUAGES,
+    
+    // Session management
+    availableSessions,
+    currentSession,
+    isLoadingSessions,
+    fetchSessions,
+    createNewSession,
+    switchSession,
+    fetchSessionMessages,
   };
 } 
