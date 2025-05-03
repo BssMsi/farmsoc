@@ -1,8 +1,7 @@
-
-import React, { useState } from 'react';
-import { Trash2, Plus, Minus } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Trash2, Plus, Minus, CheckCircle, AlertTriangle, X } from 'lucide-react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { getCart, updateCartItem, removeFromCart, clearCart, createOrder } from '../../services/apiService';
+import { getCart, updateCartItem, removeFromCart, clearCart, createOrder, performHealthCheck, HealthCheckResponse } from '../../services/apiService';
 import { CartItem } from '../../types/product';
 import { useAuth } from '../../contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
@@ -14,6 +13,9 @@ const ConsumerCart: React.FC = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
   const [isCheckingOut, setIsCheckingOut] = useState(false);
+  const [healthCheckResults, setHealthCheckResults] = useState<Record<string, HealthCheckResponse>>({});
+  const [isHealthModalOpen, setIsHealthModalOpen] = useState(false);
+  const [selectedHealthInfo, setSelectedHealthInfo] = useState<HealthCheckResponse | null>(null);
   const [shippingDetails, setShippingDetails] = useState({
     name: user?.name || '',
     street: '',
@@ -30,6 +32,29 @@ const ConsumerCart: React.FC = () => {
     queryKey: ['cart'],
     queryFn: getCart
   });
+  
+  // Perform health check when cart changes and user has diseases
+  useEffect(() => {
+    const performHealthCheckIfNeeded = async () => {
+      if (cartItems.length > 0 && user?.diseases && user.diseases.length > 0) {
+        try {
+          const results = await performHealthCheck(user.diseases, cartItems);
+          
+          // Convert array to a lookup object by productId for easy access
+          const resultsMap: Record<string, HealthCheckResponse> = {};
+          results.forEach(result => {
+            resultsMap[result.productId] = result;
+          });
+          
+          setHealthCheckResults(resultsMap);
+        } catch (error) {
+          console.error('Health check error:', error);
+        }
+      }
+    };
+    
+    performHealthCheckIfNeeded();
+  }, [cartItems, user?.diseases]);
   
   // Calculate cart totals
   const subtotal = cartItems.reduce(
@@ -129,11 +154,63 @@ const ConsumerCart: React.FC = () => {
     }));
   };
 
+  const openHealthModal = (result: HealthCheckResponse) => {
+    setSelectedHealthInfo(result);
+    setIsHealthModalOpen(true);
+  };
+  
+  const closeHealthModal = () => {
+    setIsHealthModalOpen(false);
+    setSelectedHealthInfo(null);
+  };
+
   return (
     <div className="h-full bg-gray-50 pb-16">
       <div className="bg-white p-4 shadow-sm">
         <h1 className="text-xl font-semibold">Your Cart</h1>
       </div>
+      
+      {/* Health Info Modal */}
+      {isHealthModalOpen && selectedHealthInfo && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg shadow-xl max-w-md w-full p-6">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-lg font-semibold">
+                Health Information
+              </h3>
+              <button 
+                onClick={closeHealthModal}
+                className="text-gray-400 hover:text-gray-600"
+              >
+                <X size={24} />
+              </button>
+            </div>
+            
+            <div className="mb-4 flex items-start">
+              {selectedHealthInfo.flag === 'pass' ? (
+                <CheckCircle size={24} className="text-green-500 mr-2 flex-shrink-0 mt-1" />
+              ) : (
+                <AlertTriangle size={24} className="text-amber-500 mr-2 flex-shrink-0 mt-1" />
+              )}
+              <p className="text-gray-700">{selectedHealthInfo.comments}</p>
+            </div>
+            
+            <div className="border-t pt-4">
+              <p className="text-sm text-gray-500">
+                This information is based on your health conditions and our product database. 
+                Always consult with your healthcare provider for personalized advice.
+              </p>
+            </div>
+            
+            <button 
+              className="mt-4 w-full py-2 bg-farmsoc-primary text-white rounded-lg"
+              onClick={closeHealthModal}
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      )}
       
       <div className="p-4">
         {isLoading ? (
@@ -164,7 +241,21 @@ const ConsumerCart: React.FC = () => {
                   />
                   <div className="ml-4 flex-1">
                     <div className="flex justify-between">
-                      <h3 className="font-medium">{item.product.name}</h3>
+                      <div className="flex items-center">
+                        <h3 className="font-medium">{item.product.name}</h3>
+                        {healthCheckResults[item.productId] && (
+                          <button 
+                            className="ml-2"
+                            onClick={() => openHealthModal(healthCheckResults[item.productId])}
+                          >
+                            {healthCheckResults[item.productId].flag === 'pass' ? (
+                              <CheckCircle size={16} className="text-green-500" />
+                            ) : (
+                              <AlertTriangle size={16} className="text-amber-500" />
+                            )}
+                          </button>
+                        )}
+                      </div>
                       <button 
                         className="text-gray-400 hover:text-red-500"
                         onClick={() => removeItemMutation.mutate(item.productId)}

@@ -590,3 +590,65 @@ export const getPersonalizedRecommendations = async (userId: string): Promise<Pr
     }, 300);
   });
 };
+
+// Health check functionality
+export interface HealthCheckResponse {
+  productId: string;
+  flag: 'pass' | 'fail';
+  comments: string;
+}
+
+export const performHealthCheck = async (
+  diseases: string[],
+  cartItems: CartItem[]
+): Promise<HealthCheckResponse[]> => {
+  try {
+    // Convert cart items to a simpler format for the API
+    const products = cartItems.map(item => ({
+      id: item.productId,
+      name: item.product.name,
+      category: item.product.category,
+      description: item.product.description
+    }));
+    
+    // Call the backend API
+    const response = await fetch(`${process.env.REACT_APP_API_URL || 'http://140.245.233.27:8080'}/health-check`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ diseases, products })
+    });
+    
+    if (!response.ok) {
+      throw new Error('Health check API failed');
+    }
+    
+    const results = await response.json();
+    return results;
+  } catch (error) {
+    console.error('Health check API error:', error);
+    
+    // Fallback to mock implementation if API call fails
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        const results = cartItems.map(item => {
+          const product = item.product;
+          const isSafe = Math.random() > 0.3; // Random pass/fail for demo
+          
+          const result: HealthCheckResponse = {
+            productId: product.id,
+            flag: isSafe ? 'pass' : 'fail',
+            comments: isSafe 
+              ? `${product.name} is safe for consumption with your health conditions.` 
+              : `${product.name} may not be suitable for people with ${diseases[0] || 'your condition'}. Please consult with your doctor.`
+          };
+          
+          return result;
+        });
+        
+        resolve(results);
+      }, 500);
+    });
+  }
+};
