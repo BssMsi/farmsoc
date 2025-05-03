@@ -62,13 +62,15 @@ async def health_check(request: HealthCheckRequest):
             # Create a prompt for the LLM
             product_name = product.get('name', 'Unknown product')
             prompt = f"""Evaluate if the product '{product_name}' is safe and beneficial for a person with the following health conditions: {', '.join(request.diseases)}.
-            
+
             Respond with:
             1. A determination of 'pass' if the product is generally safe and potentially beneficial, or 'fail' if it could be detrimental.
             2. A brief explanation of why the product is beneficial or potentially harmful given these health conditions.
             
             Format your response as a JSON object with two fields: 'flag' (either 'pass' or 'fail') and 'comments' (explanation).
             
+            Be sensitive, even if moderation is required give the flag as fail and mention the reason in comments.
+
             Example response format:
             {{
                 "flag": "pass",
@@ -84,6 +86,7 @@ async def health_check(request: HealthCheckRequest):
             # Parse the response - we expect a JSON string
             try:
                 response_content = response.content
+                print(response_content)
                 
                 # Check if the response contains a valid JSON object
                 if not (response_content.strip().startswith('{') and response_content.strip().endswith('}')):

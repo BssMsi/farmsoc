@@ -158,11 +158,57 @@ export const mockProducts: Product[] = [
     reviewCount: 23,
     createdAt: new Date('2023-05-19'),
     updatedAt: new Date('2023-05-19')
-  }
+  },
+  {
+    id: 'p6',
+    farmerId: '2',
+    name: 'Raisins (Kishmish)',
+    description: 'Organic Raisins (Kishmish) from our farm.',
+    price: 40,
+    images: [
+      'https://plus.unsplash.com/premium_photo-1669205434519-a042ba09fbdd?q=80&w=2874&auto=format&fit=crop&ixlib=rb-4.0.3',
+    ],
+    category: 'fruits',
+    quantity: 10,
+    unit: 'kg',
+    farmingMethod: 'organic',
+    rating: 4.8,
+    reviewCount: 23,
+    createdAt: new Date('2023-06-15'),
+    updatedAt: new Date('2023-06-15')
+  },
 ];
 
 // Mock Posts
 export const mockPosts: Post[] = [
+  {
+    id: 'post0',
+    userId: '2',
+    username: 'Jane Farmer',
+    userRole: 'farmer',
+    userProfileImage: 'https://i.pravatar.cc/150?img=4',
+    type: 'post',
+    content: 'New batch of sweet raisins! Available now.',
+    images: [
+      'https://plus.unsplash.com/premium_photo-1669205434519-a042ba09fbdd?q=80&w=2874&auto=format&fit=crop&ixlib=rb-4.0.3',
+    ],
+    linkedProducts: ['p6'],
+    location: 'Punjab, India',
+    createdAt: new Date('2023-06-01T09:30:00'),
+    updatedAt: new Date('2023-06-01T09:30:00'),
+    likes: 24,
+    comments: [
+      {
+        id: 'c1',
+        userId: '1',
+        username: 'John Consumer',
+        profileImage: 'https://i.pravatar.cc/150?img=3',
+        content: 'Those look amazing! Will definitely order some.',
+        createdAt: new Date('2023-06-01T10:15:00'),
+        likes: 2
+      }
+    ]
+  },
   {
     id: 'post1',
     userId: '2',
@@ -173,7 +219,6 @@ export const mockPosts: Post[] = [
     content: 'Just harvested a fresh batch of organic tomatoes! Available now.',
     images: [
       'https://images.unsplash.com/photo-1546094096-0df4bcaaa337?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.0.3',
-      'https://images.unsplash.com/photo-1518977676601-b53f82aba655?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.0.3',
       'https://images.unsplash.com/photo-1582284540020-8acbe03f4924?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.0.3'
     ],
     linkedProducts: ['p1'],
