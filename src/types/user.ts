@@ -1,4 +1,3 @@
-
 export type UserRole = 'consumer' | 'farmer' | 'influencer';
 
 export interface User {
@@ -13,6 +12,7 @@ export interface User {
   familyMembers?: FamilyMember[];
   socialLinks?: SocialLink[];
   bankDetails?: BankDetails;
+  diseases?: string[];
 }
 
 export interface FamilyMember {

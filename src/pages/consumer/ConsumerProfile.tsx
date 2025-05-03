@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { User, Settings, LogOut, PlusCircle, Users, ShoppingBag, CreditCard } from 'lucide-react';
+import { User, Settings, LogOut, PlusCircle, Users, ShoppingBag, CreditCard, X } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
@@ -18,8 +18,17 @@ const ConsumerProfile: React.FC = () => {
     email: user?.email || '',
     bio: user?.bio || '',
     location: user?.location || '',
-    phoneNumber: user?.phoneNumber || ''
+    phoneNumber: user?.phoneNumber || '',
+    diseases: user?.diseases || []
   });
+  const [isDiseasesOpen, setIsDiseasesOpen] = useState(false);
+  const [newDisease, setNewDisease] = useState('');
+  // Available diseases for selection
+  const availableDiseases = [
+    'Diabetes', 'Hypertension', 'Asthma', 'Arthritis', 
+    'Heart Disease', 'Allergies', 'Celiac Disease', 
+    'Lactose Intolerance', 'Thyroid Disorder'
+  ];
   const [newFamilyMember, setNewFamilyMember] = useState<{
     name: string;
     relationship: string;
@@ -61,6 +70,37 @@ const ConsumerProfile: React.FC = () => {
     }));
   };
   
+  const handleDiseaseSelect = (disease: string) => {
+    if (!profileData.diseases.includes(disease)) {
+      setProfileData(prev => ({
+        ...prev,
+        diseases: [...prev.diseases, disease]
+      }));
+    }
+    setIsDiseasesOpen(false);
+  };
+
+  const handleDiseaseRemove = (disease: string) => {
+    setProfileData(prev => ({
+      ...prev,
+      diseases: prev.diseases.filter(d => d !== disease)
+    }));
+  };
+  
+  const handleNewDiseaseInput = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setNewDisease(e.target.value);
+  };
+
+  const handleAddCustomDisease = () => {
+    if (newDisease && !profileData.diseases.includes(newDisease)) {
+      setProfileData(prev => ({
+        ...prev,
+        diseases: [...prev.diseases, newDisease]
+      }));
+      setNewDisease('');
+    }
+  };
+  
   const handleSaveProfile = async () => {
     try {
       await updateUserProfile({
@@ -68,7 +108,8 @@ const ConsumerProfile: React.FC = () => {
         name: profileData.name,
         bio: profileData.bio,
         location: profileData.location,
-        phoneNumber: profileData.phoneNumber
+        phoneNumber: profileData.phoneNumber,
+        diseases: profileData.diseases
       });
       
       setIsEditing(false);
@@ -295,6 +336,74 @@ const ConsumerProfile: React.FC = () => {
                   />
                 </div>
                 
+                {/* Disease multi-select */}
+                <div className="mb-4">
+                  <label className="block text-gray-700 text-sm font-medium mb-1">
+                    Health Conditions
+                  </label>
+                  
+                  {/* Selected diseases chips */}
+                  <div className="flex flex-wrap gap-2 mb-2">
+                    {profileData.diseases.map(disease => (
+                      <div key={disease} className="bg-farmsoc-light text-farmsoc-primary px-2 py-1 rounded-full flex items-center text-sm">
+                        {disease}
+                        <button 
+                          onClick={() => handleDiseaseRemove(disease)}
+                          className="ml-1 rounded-full hover:bg-red-100"
+                        >
+                          <X size={14} />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                  
+                  {/* Dropdown */}
+                  <div className="relative">
+                    <button
+                      onClick={() => setIsDiseasesOpen(!isDiseasesOpen)}
+                      className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-1 focus:ring-farmsoc-primary text-left flex justify-between items-center"
+                    >
+                      <span>Select conditions</span>
+                      <span className="text-gray-400">▼</span>
+                    </button>
+                    
+                    {isDiseasesOpen && (
+                      <div className="absolute z-10 w-full mt-1 bg-white border rounded shadow-lg max-h-60 overflow-y-auto">
+                        {availableDiseases.map(disease => (
+                          <div 
+                            key={disease}
+                            className={`p-2 hover:bg-gray-100 cursor-pointer ${
+                              profileData.diseases.includes(disease) ? 'bg-gray-100' : ''
+                            }`}
+                            onClick={() => handleDiseaseSelect(disease)}
+                          >
+                            {disease}
+                          </div>
+                        ))}
+                        
+                        {/* Custom disease input */}
+                        <div className="p-2 border-t">
+                          <div className="flex">
+                            <input 
+                              type="text"
+                              value={newDisease}
+                              onChange={handleNewDiseaseInput}
+                              placeholder="Add custom condition"
+                              className="flex-grow px-2 py-1 border rounded-l focus:outline-none focus:ring-1 focus:ring-farmsoc-primary"
+                            />
+                            <button
+                              onClick={handleAddCustomDisease}
+                              className="bg-farmsoc-primary text-white px-2 py-1 rounded-r"
+                            >
+                              Add
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+                
                 <div className="flex space-x-3">
                   <button 
                     className="px-4 py-2 bg-farmsoc-primary text-white rounded"
@@ -347,6 +456,21 @@ const ConsumerProfile: React.FC = () => {
                   <div>
                     <h3 className="text-sm text-gray-500">Phone Number</h3>
                     <p>{user?.phoneNumber || 'Not provided'}</p>
+                  </div>
+                  
+                  <div>
+                    <h3 className="text-sm text-gray-500">Health Conditions</h3>
+                    {user?.diseases && user.diseases.length > 0 ? (
+                      <div className="flex flex-wrap gap-2 mt-1">
+                        {user.diseases.map(disease => (
+                          <div key={disease} className="bg-farmsoc-light text-farmsoc-primary px-2 py-1 rounded-full text-sm">
+                            {disease}
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <p>None specified</p>
+                    )}
                   </div>
                 </div>
                 
