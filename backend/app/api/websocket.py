@@ -165,6 +165,7 @@ async def call_english_agent_api(text_input, session_history):
     """
     Call English agent API with the complete conversation history.
     This would be implemented based on the specific agent API details.
+    Returns a tuple of (response_text, navigation_url) where navigation_url is optional
     """
     # TODO: Replace with actual English agent API call
     # For now, we'll just echo back the input as a simple response
@@ -173,17 +174,39 @@ async def call_english_agent_api(text_input, session_history):
         # Here we would pass the entire session_history to the API
         logger.debug(f"Calling English agent API with history of {len(session_history)} messages")
         
-        # Just a simple response for now that acknowledges the history
-        if len(session_history) > 1:
-            previous_exchanges = len(session_history) // 2
-            response = f"This is response #{previous_exchanges+1} to: {text_input}"
+        navigation_url = None
+        response_text = ""
+        
+        # Simple navigation command detection
+        # In a real implementation, this would come from the LLM API
+        if "go to home" in text_input.lower() or "home page" in text_input.lower():
+            navigation_url = "/"
+            response_text = "Taking you to the home page."
+        elif "profile" in text_input.lower():
+            navigation_url = "/profile"
+            response_text = "Navigating to your profile page."
+        elif "dashboard" in text_input.lower():
+            navigation_url = "/dashboard"
+            response_text = "Opening the dashboard for you."
+        elif "settings" in text_input.lower():
+            navigation_url = "/settings"
+            response_text = "Here are your settings."
+        elif "help" in text_input.lower():
+            navigation_url = "/help"
+            response_text = "Opening the help section."
         else:
-            response = f"This is my first response to: {text_input}"
-            
-        return response
+            # Just a simple response for now that acknowledges the history
+            if len(session_history) > 1:
+                previous_exchanges = len(session_history) // 2
+                response_text = f"This is response #{previous_exchanges+1} to: {text_input}"
+            else:
+                response_text = f"This is my first response to: {text_input}"
+        
+        # Return a tuple of (response_text, navigation_url)
+        return response_text, navigation_url
     except Exception as e:
         logger.error(f"Error calling English agent API: {e}", exc_info=True)
-        return None
+        return None, None
 
 async def sarvam_text_to_speech(text, target_lang_code="en-IN") -> str | None:
     """Convert text to speech using Sarvam.ai API"""
@@ -350,7 +373,7 @@ async def websocket_endpoint(websocket: WebSocket, client_id: str):
                 
                 # Call English agent API with the text and session history
                 await manager.send_personal_message(json.dumps({"status": "processing_llm", "message": "Thinking..."}), client_id)
-                response_text = await call_english_agent_api(text_data, session_history)
+                response_text, navigation_url = await call_english_agent_api(text_data, session_history)
                 # Timestamp when LLM completed
                 llm_completed_timestamp = int(time.time())
 
@@ -422,7 +445,7 @@ async def websocket_endpoint(websocket: WebSocket, client_id: str):
                     await manager.send_personal_message(json.dumps({"status": "processing_llm", "message": "Thinking..."}), client_id)
                     
                     # Call English agent API with the transcribed text and session history
-                    response_text = await call_english_agent_api(transcribed_text, session_history)
+                    response_text, navigation_url = await call_english_agent_api(transcribed_text, session_history)
                     # Timestamp when LLM completed
                     llm_completed_timestamp = int(time.time())
 
@@ -433,6 +456,11 @@ async def websocket_endpoint(websocket: WebSocket, client_id: str):
 
             # Process assistant response
             if response_text:
+                # Unpack response and navigation URL if call_english_agent_api returns a tuple
+                # navigation_url = None
+                # if isinstance(response_text, tuple) and len(response_text) == 2:
+                #     response_text, navigation_url = response_text
+                
                 # Store original English response
                 original_response_text = response_text
                 
@@ -477,6 +505,7 @@ async def websocket_endpoint(websocket: WebSocket, client_id: str):
                     
                     logger.info(f"Performance metrics for {client_id}: STT: {stt_duration}s, LLM: {llm_duration}s, Translation: {translation_duration}s, TTS: {tts_duration}s, Total: {total_duration}s")
                     
+                    # Add navigation URL to the response payload if available
                     response_payload = {
                         "status": "response_ready",
                         "text": response_text,
@@ -489,10 +518,16 @@ async def websocket_endpoint(websocket: WebSocket, client_id: str):
                             "total_duration": total_duration
                         }
                     }
+                    
+                    # Add navigation_url to the payload if it exists
+                    if navigation_url:
+                        response_payload["navigation_url"] = navigation_url
+                        logger.info(f"Adding navigation URL to response: {navigation_url}")
+                    
                     await manager.send_personal_message(json.dumps(response_payload), client_id)
                 else:
-                    logger.error(f"TTS generation failed for client {client_id}.")
-                    await manager.send_personal_message(json.dumps({
+                    # Include navigation URL in error response if available
+                    error_payload = {
                         "status": "error",
                         "message": "Audio generation failed. Displaying text response.",
                         "text": response_text,
@@ -502,7 +537,13 @@ async def websocket_endpoint(websocket: WebSocket, client_id: str):
                             "translation_duration": translation_duration,
                             "total_duration": llm_completed_timestamp - received_timestamp if llm_completed_timestamp and received_timestamp else 0
                         }
-                    }), client_id)
+                    }
+                    
+                    # Add navigation_url to the error payload if it exists
+                    if navigation_url:
+                        error_payload["navigation_url"] = navigation_url
+                    
+                    await manager.send_personal_message(json.dumps(error_payload), client_id)
             else:
                 # API failed to return text
                 error_message = "AI failed to generate a response."

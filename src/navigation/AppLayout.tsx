@@ -26,7 +26,33 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
     startRecording,
     stopRecording,
     playAudio,
+    navigationUrl,
+    resetNavigation,
   } = useAiChat();
+
+  // Handle AI-driven navigation
+  React.useEffect(() => {
+    if (navigationUrl) {
+      console.log(`Performing navigation to: ${navigationUrl}`);
+      
+      // Check if it's an absolute URL (external link)
+      if (navigationUrl.startsWith('http://') || navigationUrl.startsWith('https://')) {
+        // Open external links in a new tab
+        window.open(navigationUrl, '_blank');
+      } else {
+        // For app routes, use the navigate function
+        // Ensure route starts with /app if it doesn't already
+        const route = navigationUrl.startsWith('/app') 
+          ? navigationUrl 
+          : `/app${navigationUrl === '/' ? '/home' : navigationUrl}`;
+        
+        navigate(route);
+      }
+      
+      // Reset navigation state after handling
+      resetNavigation();
+    }
+  }, [navigationUrl, navigate, resetNavigation]);
 
   const renderBottomTabs = () => {
     const isActive = (path: string) => location.pathname === `/app/${path}`;

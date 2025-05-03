@@ -11,6 +11,14 @@ function _base64ToArrayBuffer(base64: string): ArrayBuffer {
   return bytes.buffer;
 }
 
+// Extract navigation URL from text using a defined format
+// This looks for URLs in the format: [NAVIGATE:url]
+function extractNavigationUrl(text: string): string | null {
+  const navigationRegex = /\[NAVIGATE:(https?:\/\/[^\]\s]+)\]/i;
+  const match = text.match(navigationRegex);
+  return match ? match[1] : null;
+}
+
 // --- Types ---
 export interface ChatMessage {
   id: string;
@@ -20,6 +28,7 @@ export interface ChatMessage {
   audioBase64?: string; // Renamed from audioUrl and changed type
   timestamp: number;
   text?: string; // Optional text content (e.g., for transcribed or error with text)
+  navigationUrl?: string; // Added for messages that contain a navigation request
 }
 
 export interface BackendStatus {
@@ -34,6 +43,7 @@ interface ReadyResponseMessage {
     status: 'response_ready';
     text: string;
     audio_base64: string;
+    navigation_url?: string; // Added navigation URL field
     performance?: {
       stt_duration: number;
       llm_duration: number;
@@ -125,6 +135,16 @@ export function useAiChat() {
   // Ref to keep track of the last message ID for potential status updates
   const lastStatusMessageId = useRef<string | null>(null);
 
+  // Add state for current navigation URL
+  const [navigationUrl, setNavigationUrl] = useState<string | null>(null);
+  
+  // Navigation handler
+  const navigateTo = useCallback((url: string) => {
+    console.log(`Navigating to: ${url}`);
+    // We just set the URL - the consuming component can react to this change
+    setNavigationUrl(url);
+  }, []);
+  
   // --- Session Management Functions ---
   const fetchSessions = useCallback(async () => {
     setIsLoadingSessions(true);
@@ -304,13 +324,30 @@ export function useAiChat() {
                         const backendMsg = parsedData;
                         setBackendStatus({ status: 'connected', message: 'Ready.' });
                         const timestamp = Date.now();
+                        
+                        // Check for navigation URL - either from direct field or extracted from text
+                        let navigationUrl = backendMsg.navigation_url || null;
+                        
+                        // Create message with possible navigation URL
                         const newMessage: ChatMessage = {
-                            id: timestamp.toString(), sender: 'ai', type: 'text',
-                            content: backendMsg.text, audioBase64: backendMsg.audio_base64, timestamp,
+                            id: timestamp.toString(), 
+                            sender: 'ai', 
+                            type: 'text',
+                            content: backendMsg.text, 
+                            audioBase64: backendMsg.audio_base64, 
+                            timestamp,
+                            navigationUrl: navigationUrl || undefined,
                         };
+                        
                         setMessages(prev => [...prev, newMessage]);
                         playAudio(backendMsg.audio_base64);
                         lastStatusMessageId.current = null;
+                        
+                        // Handle navigation if URL was found
+                        if (navigationUrl) {
+                            console.log(`Navigation URL detected: ${navigationUrl}`);
+                            navigateTo(navigationUrl);
+                        }
                         
                         // Log performance metrics if available
                         if (backendMsg.performance) {
@@ -405,7 +442,7 @@ export function useAiChat() {
         ws.current = null; // Ensure ws.current is null if constructor fails
         return;
     }
-  }, [fetchSessions]);
+  }, [fetchSessions, navigateTo]);
 
   const disconnectWebSocket = useCallback(() => {
     if (ws.current) {
@@ -686,5 +723,9 @@ export function useAiChat() {
     createNewSession,
     switchSession,
     fetchSessionMessages,
+    
+    // Navigation
+    navigationUrl,
+    resetNavigation: () => setNavigationUrl(null), // Provide a way to reset after navigation is handled
   };
 } 
