@@ -1,4 +1,3 @@
-
 import React, { lazy, Suspense } from 'react';
 import { Route, Routes, Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
@@ -17,6 +16,9 @@ const ConsumerProductDetail = lazy(() => import('../pages/consumer/ConsumerProdu
 // Lazy loaded farmer screens
 const FarmerHome = lazy(() => import('../pages/farmer/FarmerHome'));
 const FarmerAddContent = lazy(() => import('../pages/farmer/FarmerAddContent'));
+const FarmerAddProduct = lazy(() => import('../pages/farmer/add/FarmerAddProduct'));
+const FarmerAddPost = lazy(() => import('../pages/farmer/add/FarmerAddPost'));
+const FarmerAddCollaboration = lazy(() => import('../pages/farmer/add/FarmerAddCollaboration'));
 const FarmerEvents = lazy(() => import('../pages/farmer/FarmerEvents'));
 const FarmerCropRequests = lazy(() => import('../pages/farmer/FarmerCropRequests'));
 const FarmerProfile = lazy(() => import('../pages/farmer/FarmerProfile'));
@@ -80,7 +82,10 @@ const AppNavigator: React.FC = () => {
                   {user?.role === 'farmer' && (
                     <>
                       <Route path="home" element={<FarmerHome />} />
-                      <Route path="add" element={<FarmerAddContent />} />
+                      <Route path="add" element={<Navigate to="/app/add/product" replace />} />
+                      <Route path="add/product" element={<FarmerAddProduct />} />
+                      <Route path="add/post" element={<FarmerAddPost />} />
+                      <Route path="add/collaboration" element={<FarmerAddCollaboration />} />
                       <Route path="events" element={<FarmerEvents />} />
                       <Route path="crop-requests" element={<FarmerCropRequests />} />
                       <Route path="profile" element={<FarmerProfile />} />

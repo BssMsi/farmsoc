@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { IndianRupee } from 'lucide-react';
 import { useAuth } from '../../../contexts/AuthContext';
 import { createProduct } from '../../../services/apiService';
@@ -8,19 +8,37 @@ import ImageUpload from './shared/ImageUpload';
 
 interface ProductFormProps {
   onProductCreated?: () => void;
+  initialValues?: {
+    name?: string;
+    description?: string;
+    price?: string;
+    category?: ProductCategory;
+    quantity?: string;
+    unit?: 'kg' | 'g' | 'pieces' | 'bundle' | 'liter' | 'ml';
+  };
 }
 
-const ProductForm: React.FC<ProductFormProps> = ({ onProductCreated }) => {
+const ProductForm: React.FC<ProductFormProps> = ({ onProductCreated, initialValues = {} }) => {
   const { user } = useAuth();
   const { toast } = useToast();
   
-  const [productName, setProductName] = useState('');
-  const [productDescription, setProductDescription] = useState('');
-  const [productPrice, setProductPrice] = useState('');
+  const [productName, setProductName] = useState(initialValues.name || '');
+  const [productDescription, setProductDescription] = useState(initialValues.description || '');
+  const [productPrice, setProductPrice] = useState(initialValues.price || '');
   const [productMedia, setProductMedia] = useState<string[]>([]);
-  const [productCategory, setProductCategory] = useState<ProductCategory>('vegetables');
-  const [productQuantity, setProductQuantity] = useState('');
-  const [productUnit, setProductUnit] = useState<'kg' | 'g' | 'pieces' | 'bundle' | 'liter' | 'ml'>('kg');
+  const [productCategory, setProductCategory] = useState<ProductCategory>(initialValues.category || 'vegetables');
+  const [productQuantity, setProductQuantity] = useState(initialValues.quantity || '');
+  const [productUnit, setProductUnit] = useState<'kg' | 'g' | 'pieces' | 'bundle' | 'liter' | 'ml'>(initialValues.unit || 'kg');
+
+  // Update form fields when initialValues change
+  useEffect(() => {
+    if (initialValues.name !== undefined) setProductName(initialValues.name);
+    if (initialValues.description !== undefined) setProductDescription(initialValues.description);
+    if (initialValues.price !== undefined) setProductPrice(initialValues.price);
+    if (initialValues.category !== undefined) setProductCategory(initialValues.category);
+    if (initialValues.quantity !== undefined) setProductQuantity(initialValues.quantity);
+    if (initialValues.unit !== undefined) setProductUnit(initialValues.unit);
+  }, [initialValues]);
 
   const handleAddProduct = async (e: React.FormEvent) => {
     e.preventDefault();

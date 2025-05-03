@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { IndianRupee, Calendar, Users } from 'lucide-react';
 import { useAuth } from '../../../contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
@@ -8,24 +8,74 @@ import PlatformSelector from './shared/PlatformSelector';
 interface CollaborationFormProps {
   onCollaborationCreated?: () => void;
   initialFollowerCount?: string;
+  initialValues?: {
+    compensationType?: 'monetary' | 'product';
+    budget?: string;
+    timeline?: string;
+    requirements?: string;
+    platforms?: string[];
+    followerCount?: string;
+    deadline?: string;
+    productName?: string;
+    productQuantity?: string;
+  };
 }
 
 const CollaborationForm: React.FC<CollaborationFormProps> = ({ 
   onCollaborationCreated,
-  initialFollowerCount = ''
+  initialFollowerCount = '',
+  initialValues = {}
 }) => {
   const { user } = useAuth();
   const { toast } = useToast();
   
-  const [compensationType, setCompensationType] = useState<'monetary' | 'product'>('monetary');
-  const [collaborationBudget, setCollaborationBudget] = useState('');
-  const [collaborationTimeline, setCollaborationTimeline] = useState('');
-  const [collaborationRequirements, setCollaborationRequirements] = useState('');
-  const [collaborationPlatforms, setCollaborationPlatforms] = useState<string[]>([]);
-  const [collaborationFollowerCount, setCollaborationFollowerCount] = useState(initialFollowerCount);
-  const [collaborationDeadline, setCollaborationDeadline] = useState('');
-  const [productExchangeName, setProductExchangeName] = useState('');
-  const [productExchangeQuantity, setProductExchangeQuantity] = useState('');
+  const [compensationType, setCompensationType] = useState<'monetary' | 'product'>(
+    initialValues.compensationType || 'monetary'
+  );
+  const [collaborationBudget, setCollaborationBudget] = useState(
+    initialValues.budget || ''
+  );
+  const [collaborationTimeline, setCollaborationTimeline] = useState(
+    initialValues.timeline || ''
+  );
+  const [collaborationRequirements, setCollaborationRequirements] = useState(
+    initialValues.requirements || ''
+  );
+  const [collaborationPlatforms, setCollaborationPlatforms] = useState<string[]>(
+    initialValues.platforms || []
+  );
+  const [collaborationFollowerCount, setCollaborationFollowerCount] = useState(
+    initialValues.followerCount || initialFollowerCount || ''
+  );
+  const [collaborationDeadline, setCollaborationDeadline] = useState(
+    initialValues.deadline || ''
+  );
+  const [productExchangeName, setProductExchangeName] = useState(
+    initialValues.productName || ''
+  );
+  const [productExchangeQuantity, setProductExchangeQuantity] = useState(
+    initialValues.productQuantity || ''
+  );
+
+  // Update form fields when initialValues change
+  useEffect(() => {
+    if (initialValues.compensationType) setCompensationType(initialValues.compensationType);
+    if (initialValues.budget) setCollaborationBudget(initialValues.budget);
+    if (initialValues.timeline) setCollaborationTimeline(initialValues.timeline);
+    if (initialValues.requirements) setCollaborationRequirements(initialValues.requirements);
+    if (initialValues.platforms) setCollaborationPlatforms(initialValues.platforms);
+    if (initialValues.followerCount) setCollaborationFollowerCount(initialValues.followerCount);
+    if (initialValues.deadline) setCollaborationDeadline(initialValues.deadline);
+    if (initialValues.productName) setProductExchangeName(initialValues.productName);
+    if (initialValues.productQuantity) setProductExchangeQuantity(initialValues.productQuantity);
+  }, [initialValues]);
+
+  // Update follower count from initialFollowerCount if provided and no initialValues.followerCount
+  useEffect(() => {
+    if (initialFollowerCount && !initialValues.followerCount) {
+      setCollaborationFollowerCount(initialFollowerCount);
+    }
+  }, [initialFollowerCount, initialValues.followerCount]);
 
   const handleAddCollaboration = async (e: React.FormEvent) => {
     e.preventDefault();

@@ -10,19 +10,31 @@ import PostCard from '../../../components/common/PostCard';
 
 interface PostFormProps {
   onPostCreated?: () => void;
+  initialValues?: {
+    content?: string;
+    location?: string;
+    productId?: string;
+  };
 }
 
-const PostForm: React.FC<PostFormProps> = ({ onPostCreated }) => {
+const PostForm: React.FC<PostFormProps> = ({ onPostCreated, initialValues = {} }) => {
   const { user } = useAuth();
   const { toast } = useToast();
   
-  const [postContent, setPostContent] = useState('');
+  const [postContent, setPostContent] = useState(initialValues.content || '');
   const [postMedia, setPostMedia] = useState<string[]>([]);
-  const [selectedProductId, setSelectedProductId] = useState<string>('');
-  const [postLocation, setPostLocation] = useState('');
+  const [selectedProductId, setSelectedProductId] = useState<string>(initialValues.productId || '');
+  const [postLocation, setPostLocation] = useState(initialValues.location || '');
   const [farmerProducts, setFarmerProducts] = useState<Product[]>([]);
   const [showPreview, setShowPreview] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+
+  // Update form fields when initialValues change
+  useEffect(() => {
+    if (initialValues.content !== undefined) setPostContent(initialValues.content);
+    if (initialValues.location !== undefined) setPostLocation(initialValues.location);
+    if (initialValues.productId !== undefined) setSelectedProductId(initialValues.productId);
+  }, [initialValues]);
 
   useEffect(() => {
     const fetchProducts = async () => {
