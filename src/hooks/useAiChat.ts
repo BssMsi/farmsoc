@@ -83,7 +83,27 @@ const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://140.245.233.27:8080
 const CLIENT_ID = `web-${Date.now()}-${Math.random().toString(16).substring(2, 8)}`;
 
 export function useAiChat() {
-  const [isChatVisible, setIsChatVisible] = useState(false);
+  // Use localStorage for persistent chat visibility
+  const [isChatVisible, setIsChatVisibleState] = useState<boolean>(() => {
+    try {
+      const stored = localStorage.getItem('aiChat_isVisible');
+      return stored ? JSON.parse(stored) : false;
+    } catch (e) {
+      console.error('Error reading chat visibility from localStorage:', e);
+      return false;
+    }
+  });
+  
+  // Update localStorage when visibility changes
+  const setIsChatVisible = useCallback((isVisible: boolean) => {
+    try {
+      localStorage.setItem('aiChat_isVisible', JSON.stringify(isVisible));
+    } catch (e) {
+      console.error('Error saving chat visibility to localStorage:', e);
+    }
+    setIsChatVisibleState(isVisible);
+  }, []);
+
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   // Initialize with idle status
   const [backendStatus, setBackendStatus] = useState<BackendStatus>({ status: 'idle' });
@@ -109,7 +129,7 @@ export function useAiChat() {
   const fetchSessions = useCallback(async () => {
     setIsLoadingSessions(true);
     try {
-      const response = await fetch(`${API_BASE_URL}/api/sessions/list?user_id=${CLIENT_ID}`);
+      const response = await fetch(`${API_BASE_URL}/sessions/list?user_id=${CLIENT_ID}`);
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
@@ -133,7 +153,7 @@ export function useAiChat() {
 
   const createNewSession = useCallback(async () => {
     try {
-      const response = await fetch(`${API_BASE_URL}/api/sessions/new?user_id=${CLIENT_ID}`, {
+      const response = await fetch(`${API_BASE_URL}/sessions/new?user_id=${CLIENT_ID}`, {
         method: 'POST',
       });
       if (!response.ok) {
@@ -156,7 +176,7 @@ export function useAiChat() {
 
   const switchSession = useCallback(async (sessionId: string) => {
     try {
-      const response = await fetch(`${API_BASE_URL}/api/sessions/switch?user_id=${CLIENT_ID}&session_id=${sessionId}`, {
+      const response = await fetch(`${API_BASE_URL}/sessions/switch?user_id=${CLIENT_ID}&session_id=${sessionId}`, {
         method: 'POST',
       });
       if (!response.ok) {
@@ -181,7 +201,7 @@ export function useAiChat() {
 
   const fetchSessionMessages = useCallback(async (sessionId: string) => {
     try {
-      const response = await fetch(`${API_BASE_URL}/api/sessions/${sessionId}/history`);
+      const response = await fetch(`${API_BASE_URL}/sessions/${sessionId}/history`);
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
@@ -405,10 +425,19 @@ export function useAiChat() {
     if (!isConnected || !ws.current || ws.current.readyState !== WebSocket.OPEN) {
         console.error('Cannot start recording: WebSocket not connected.');
         setBackendStatus({ status: 'error', message: 'Not connected. Please wait or reconnect.'});
-        // Optionally try to reconnect here?
-        // connectWebSocket();
         return;
     }
+    
+    // Check if mediaDevices API is available
+    if (!navigator || !navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        console.error('MediaDevices API not supported in this browser');
+        setBackendStatus({ 
+            status: 'error', 
+            message: 'Audio recording is not supported in this browser. Please try using a modern browser with HTTPS.'
+        });
+        return;
+    }
+    
     console.log('Starting recording...');
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
@@ -597,18 +626,30 @@ export function useAiChat() {
     if (isChatVisible) {
       connectWebSocket();
     } else {
-      stopRecording(); // Stop recording if chat is closed
+      stopRecording();
       disconnectWebSocket();
     }
-    // Cleanup on unmount or when isChatVisible changes to false
+    // Cleanup on unmount
     return () => {
-      // Ensure cleanup runs if the component unmounts while visible
       if (ws.current) {
-          stopRecording();
-          disconnectWebSocket();
+        stopRecording();
+        disconnectWebSocket();
       }
     };
-  }, [isChatVisible, connectWebSocket, disconnectWebSocket]); // Dependencies
+  }, [isChatVisible, connectWebSocket, disconnectWebSocket]);
+
+  // Auto-load session data on component mount if chat is visible
+  useEffect(() => {
+    // Only fetch if we don't already have sessions and the chat is visible
+    if (isChatVisible && availableSessions.length === 0 && !isLoadingSessions) {
+      fetchSessions().then(() => {
+        // If we have a currentSession after fetching, load its messages
+        if (currentSession?.session_id) {
+          fetchSessionMessages(currentSession.session_id);
+        }
+      });
+    }
+  }, [isChatVisible, availableSessions.length, currentSession, fetchSessions, fetchSessionMessages, isLoadingSessions]);
 
   // Cleanup audio context
   useEffect(() => {
@@ -618,7 +659,6 @@ export function useAiChat() {
       audioContext.current = null; // Ensure it's cleaned up
     };
   }, []);
-
 
   // --- Return values from hook ---
   return {
