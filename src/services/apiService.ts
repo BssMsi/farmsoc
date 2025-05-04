@@ -598,6 +598,9 @@ export interface HealthCheckResponse {
   comments: string;
 }
 
+// Define a base API URL that doesn't rely on process.env
+const API_BASE_URL = 'http://140.245.233.27:8080';
+
 export const performHealthCheck = async (
   diseases: string[],
   cartItems: CartItem[]
@@ -611,8 +614,8 @@ export const performHealthCheck = async (
       description: item.product.description
     }));
     
-    // Call the backend API
-    const response = await fetch(`${process.env.REACT_APP_API_URL || 'http://140.245.233.27:8080'}/health-check`, {
+    // Call the backend API using the base URL directly
+    const response = await fetch(`${API_BASE_URL}/health-check`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'

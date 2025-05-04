@@ -7,7 +7,6 @@ const FarmerAddPost: React.FC = () => {
   const location = useLocation();
   const [formInitialValues, setFormInitialValues] = useState<{
     content?: string;
-    location?: string;
     productId?: string;
   }>({});
 
@@ -18,7 +17,6 @@ const FarmerAddPost: React.FC = () => {
 
     // Extract parameters that match form fields
     if (searchParams.has('content')) initialValues.content = searchParams.get('content') || '';
-    if (searchParams.has('location')) initialValues.location = searchParams.get('location') || '';
     if (searchParams.has('productId')) initialValues.productId = searchParams.get('productId') || '';
 
     setFormInitialValues(initialValues);

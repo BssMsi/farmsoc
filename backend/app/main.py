@@ -2,7 +2,9 @@ import sys
 import os
 from typing import List, Dict, Any
 from dotenv import load_dotenv
-
+import logging
+import json
+import re
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
@@ -15,6 +17,13 @@ from langchain_core.messages import HumanMessage
 
 # Load environment variables
 load_dotenv()
+
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
 
 app = FastAPI(title="FarmSoc AI Agent Backend")
 
@@ -53,7 +62,7 @@ async def health_check(request: HealthCheckRequest):
         if not api_key:
             raise HTTPException(status_code=500, detail="GROQ_API_KEY environment variable not set")
         
-        llm = ChatGroq(api_key=api_key, model_name="llama2-70b-4096")
+        llm = ChatGroq(api_key=api_key, model_name="qwen-qwq-32b")
         
         results = []
         
@@ -77,7 +86,7 @@ async def health_check(request: HealthCheckRequest):
                 "comments": "This product is safe and may be beneficial because..."
             }}
             
-            Only provide the JSON object, no other text.
+            Only provide the JSON object, no other text not even the <think> tags.
             """
             
             # Call the LLM
@@ -86,35 +95,43 @@ async def health_check(request: HealthCheckRequest):
             # Parse the response - we expect a JSON string
             try:
                 response_content = response.content
-                print(response_content)
                 
                 # Check if the response contains a valid JSON object
                 if not (response_content.strip().startswith('{') and response_content.strip().endswith('}')):
-                    # If not properly formatted, create a default response
-                    assessment = {
-                        "flag": "pass",
-                        "comments": f"Could not properly analyze {product_name}. Please consult with your healthcare provider."
-                    }
-                else:
-                    # Try to extract JSON from the response
-                    import json
-                    import re
                     
-                    # Find JSON object in the response
-                    json_match = re.search(r'({.*})', response_content, re.DOTALL)
+                    # First, remove any thinking tags if present
+                    cleaned_response = re.sub(r'<think>.*?</think>', '', response_content, flags=re.DOTALL)
+                    
+                    # Find JSON object in the cleaned response
+                    json_match = re.search(r'({.*})', cleaned_response, re.DOTALL)
                     if json_match:
                         json_str = json_match.group(1)
                         assessment = json.loads(json_str)
                     else:
                         assessment = {
-                            "flag": "pass",
+                            "flag": "fail",
+                            "comments": f"Could not properly analyze {product_name}. Please consult with your healthcare provider."
+                        }
+                    logger.info(f"No JSON object found in the response for {cleaned_response}")
+                else:                    
+                    # First, remove any thinking tags if present
+                    cleaned_response = re.sub(r'<think>.*?</think>', '', response_content, flags=re.DOTALL)
+                    
+                    # Find JSON object in the cleaned response
+                    json_match = re.search(r'({.*})', cleaned_response, re.DOTALL)
+                    if json_match:
+                        json_str = json_match.group(1)
+                        assessment = json.loads(json_str)
+                    else:
+                        assessment = {
+                            "flag": "fail",
                             "comments": f"Could not properly analyze {product_name}. Please consult with your healthcare provider."
                         }
                 
                 # Ensure we have the correct keys
                 if "flag" not in assessment or "comments" not in assessment:
                     assessment = {
-                        "flag": "pass",
+                        "flag": "fail",
                         "comments": f"Analysis incomplete for {product_name}. Please consult with your healthcare provider."
                     }
                 
@@ -128,7 +145,7 @@ async def health_check(request: HealthCheckRequest):
                     "flag": "pass",
                     "comments": f"Error analyzing {product_name}. Please consult with your healthcare provider."
                 }
-            
+            logger.info(f"Assessment for {product.get('id', '')}: {assessment['flag'].lower()}")
             # Add to results
             results.append(HealthCheckResponseItem(
                 productId=product.get('id', ''),

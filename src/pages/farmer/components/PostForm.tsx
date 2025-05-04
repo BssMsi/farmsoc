@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { MapPin, Eye, EyeOff } from 'lucide-react';
+import { Eye, EyeOff } from 'lucide-react';
 import { useAuth } from '../../../contexts/AuthContext';
 import { createPost } from '../../../services/apiService';
 import { useToast } from '@/hooks/use-toast';
@@ -12,7 +12,6 @@ interface PostFormProps {
   onPostCreated?: () => void;
   initialValues?: {
     content?: string;
-    location?: string;
     productId?: string;
   };
 }
@@ -24,7 +23,6 @@ const PostForm: React.FC<PostFormProps> = ({ onPostCreated, initialValues = {} }
   const [postContent, setPostContent] = useState(initialValues.content || '');
   const [postMedia, setPostMedia] = useState<string[]>([]);
   const [selectedProductId, setSelectedProductId] = useState<string>(initialValues.productId || '');
-  const [postLocation, setPostLocation] = useState(initialValues.location || '');
   const [farmerProducts, setFarmerProducts] = useState<Product[]>([]);
   const [showPreview, setShowPreview] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
@@ -32,7 +30,6 @@ const PostForm: React.FC<PostFormProps> = ({ onPostCreated, initialValues = {} }
   // Update form fields when initialValues change
   useEffect(() => {
     if (initialValues.content !== undefined) setPostContent(initialValues.content);
-    if (initialValues.location !== undefined) setPostLocation(initialValues.location);
     if (initialValues.productId !== undefined) setSelectedProductId(initialValues.productId);
   }, [initialValues]);
 
@@ -87,8 +84,7 @@ const PostForm: React.FC<PostFormProps> = ({ onPostCreated, initialValues = {} }
       content: postContent,
       images: postMedia.filter(media => !media.startsWith('data:video')),
       video: postMedia.find(media => media.startsWith('data:video')) || '',
-      linkedProducts: [selectedProductId],
-      location: postLocation
+      linkedProducts: [selectedProductId]
     };
 
     try {
@@ -102,7 +98,6 @@ const PostForm: React.FC<PostFormProps> = ({ onPostCreated, initialValues = {} }
       setPostContent('');
       setPostMedia([]);
       setSelectedProductId('');
-      setPostLocation('');
       
       if (onPostCreated) {
         onPostCreated();
@@ -127,7 +122,6 @@ const PostForm: React.FC<PostFormProps> = ({ onPostCreated, initialValues = {} }
     images: postMedia.filter(media => !media.startsWith('data:video')),
     video: postMedia.find(media => media.startsWith('data:video')) || '',
     linkedProducts: selectedProductId ? [selectedProductId] : [],
-    location: postLocation,
     createdAt: new Date(),
     updatedAt: new Date(),
     likes: 0,
@@ -179,24 +173,6 @@ const PostForm: React.FC<PostFormProps> = ({ onPostCreated, initialValues = {} }
               </option>
             ))}
           </select>
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Location
-          </label>
-          <div className="relative">
-            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <MapPin className="h-5 w-5 text-gray-400" />
-            </div>
-            <input
-              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-farmsoc-primary focus:border-transparent"
-              type="text"
-              placeholder="Enter location"
-              value={postLocation}
-              onChange={(e) => setPostLocation(e.target.value)}
-            />
-          </div>
         </div>
 
         <div className="flex items-center justify-between">

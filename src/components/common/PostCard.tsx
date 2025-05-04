@@ -119,9 +119,6 @@ const PostCard: React.FC<PostCardProps> = ({ post, linkedProduct }) => {
         />
         <div className="flex-1">
           <div className="font-medium text-sm">{post.username}</div>
-          {post.location && (
-            <div className="text-xs text-gray-500">{post.location}</div>
-          )}
         </div>
       </div>
 
