@@ -5,6 +5,7 @@ import datetime
 import asyncio
 from sqlalchemy.orm import Session as DBSession
 from sqlalchemy import desc
+import sqlalchemy.exc
 
 from .models import User, Session, Message, get_db_session, init_db
 
@@ -20,20 +21,54 @@ class DBManager:
     
     def close(self):
         """Close the database session."""
-        self.db.close()
+        try:
+            self.db.close()
+        except sqlalchemy.exc.InvalidRequestError as e:
+            logger.error(f"Error closing session: {e}")
+            try:
+                self.db.rollback()
+                self.db.close()
+            except Exception as ex:
+                logger.error(f"Failed to rollback and close: {ex}")
     
+    def _ensure_valid_session(self):
+        """Ensure the database session is in a valid state."""
+        try:
+            # Test if session is valid
+            from sqlalchemy import text
+            self.db.execute(text('SELECT 1'))
+        except sqlalchemy.exc.InvalidRequestError as e:
+            logger.warning(f"Invalid session state detected: {e}")
+            try:
+                # Try to rollback any pending transactions
+                self.db.rollback()
+                logger.info("Successfully rolled back transaction")
+            except Exception as rollback_error:
+                logger.error(f"Failed to rollback: {rollback_error}")
+                # Create a new session as a last resort
+                self.db.close()
+                self.db = get_db_session(self.engine)
+                logger.info("Created new database session")
+                
     async def close_async(self):
         """Close the database session asynchronously."""
         await asyncio.to_thread(self.close)
     
     def get_or_create_user(self, user_id: str) -> User:
         """Get a user by ID or create if it doesn't exist."""
+        self._ensure_valid_session()
+        
         user = self.db.query(User).filter(User.user_id == user_id).first()
         if not user:
             user = User(user_id=user_id)
             self.db.add(user)
-            self.db.commit()
-            logger.info(f"Created new user with ID: {user_id}")
+            try:
+                self.db.commit()
+                logger.info(f"Created new user with ID: {user_id}")
+            except Exception as e:
+                logger.error(f"Error creating user: {e}")
+                self.db.rollback()
+                raise
         return user
     
     async def get_or_create_user_async(self, user_id: str) -> User:
@@ -42,6 +77,8 @@ class DBManager:
     
     def create_session(self, user_id: str) -> Tuple[str, int]:
         """Create a new session for a user."""
+        self._ensure_valid_session()
+        
         user = self.get_or_create_user(user_id)
         
         # Generate a unique session ID
@@ -50,19 +87,24 @@ class DBManager:
         # Create the session
         session = Session(session_id=session_id, user_id=user.id)
         self.db.add(session)
-        self.db.commit()
-        
-        # Add system message to initialize the conversation
-        system_msg = Message(
-            session_id=session.id,
-            role="system",
-            content="You are FarmSocial AI, a helpful assistant for Kannada-speaking farmers. Respond naturally and informatively in Kannada based on the user's voice or text input."
-        )
-        self.db.add(system_msg)
-        self.db.commit()
-        
-        logger.info(f"Created new session {session_id} for user {user_id}")
-        return session_id, session.id
+        try:
+            self.db.commit()
+            
+            # Add system message to initialize the conversation
+            system_msg = Message(
+                session_id=session.id,
+                role="system",
+                content="You are FarmSocial AI, a helpful assistant for Kannada-speaking farmers. Respond naturally and informatively in Kannada based on the user's voice or text input."
+            )
+            self.db.add(system_msg)
+            self.db.commit()
+            
+            logger.info(f"Created new session {session_id} for user {user_id}")
+            return session_id, session.id
+        except Exception as e:
+            logger.error(f"Error creating session: {e}")
+            self.db.rollback()
+            raise
     
     async def create_session_async(self, user_id: str) -> Tuple[str, int]:
         """Create a new session for a user (async version)."""
@@ -70,6 +112,8 @@ class DBManager:
     
     def get_active_session(self, user_id: str) -> Optional[Tuple[str, int]]:
         """Get the active session for a user."""
+        self._ensure_valid_session()
+        
         user = self.get_or_create_user(user_id)
         session = self.db.query(Session).filter(
             Session.user_id == user.id,
@@ -86,6 +130,8 @@ class DBManager:
     
     def get_or_create_session(self, user_id: str) -> Tuple[str, int]:
         """Get the active session for a user or create a new one."""
+        self._ensure_valid_session()
+        
         active_session = self.get_active_session(user_id)
         if active_session:
             return active_session
@@ -280,4 +326,14 @@ class DBManager:
         
     async def switch_session_async(self, user_id: str, new_session_id: str) -> bool:
         """Switch the active session for a user (async version)."""
-        return await asyncio.to_thread(self.switch_session, user_id, new_session_id) 
+        return await asyncio.to_thread(self.switch_session, user_id, new_session_id)
+    
+    def _safe_commit(self):
+        """Safely commit changes with rollback on error."""
+        try:
+            self.db.commit()
+            return True
+        except Exception as e:
+            logger.error(f"Error during commit: {e}")
+            self.db.rollback()
+            return False 
