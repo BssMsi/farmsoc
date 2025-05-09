@@ -175,7 +175,7 @@ from copy import deepcopy # To avoid modifying input state directly
 # --- Environment Variable for API Key (Recommended) ---
 # Ensure you have GROQ_API_KEY set in your environment,
 # or replace the default fallback value.
-GROQ_API_KEY = os.getenv("GROQ_API_KEY", "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") # Replace if needed fallback
+GROQ_API_KEY = os.getenv("GROQ_API_KEY") # Replace if needed fallback
 
 # ─────────────────────────────────────────
 # 1. Conversation state (Unchanged)
