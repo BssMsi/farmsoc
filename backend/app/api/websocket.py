@@ -30,6 +30,8 @@ logger = logging.getLogger(__name__)
 # Load environment variables (for API keys)
 load_dotenv() # Searches for .env file in current dir or parent dirs
 
+# TODO : Try https://dhenu.ai/
+
 # Get Sarvam API key
 SARVAM_API_KEY = os.getenv("SARVAM_API_KEY")
 if not SARVAM_API_KEY:
@@ -330,9 +332,48 @@ Return ONLY the word "product" or "post" without any additional text.
             state["done"] = False
             state["summary"] = None
 
-            # Don't add a separate base URL message, proceed directly to first question
-            # generated_url = initial_url # Set generated_url for this turn
-            # placeholder_name = None # No specific data awaited yet
+            # After intent classification, extract any entities from the initial message
+            entity_extraction_prompt = f"""
+You are an entity extraction model for an agricultural marketplace app.
+The user has expressed intent to add a {intent}.
+
+For {intent}s, extract the following fields if they are present in the message:
+{', '.join([f'"{field[0]}"' for field in (product_fields if intent == "product" else post_fields)])}
+
+Format your response as a JSON object with these field names as keys and the extracted values.
+Only include fields that you are confident are mentioned in the message.
+If a field is not mentioned, do not include it in the JSON.
+
+User message: {user_input}
+"""
+            try:
+                # Extract entities from the initial message
+                extracted_response = llm.invoke([
+                    SystemMessage(content=entity_extraction_prompt),
+                    HumanMessage(content=user_input)
+                ])
+                
+                # Parse the JSON response
+                import re
+                import json
+                
+                # Extract JSON from the response (handling potential text before/after the JSON)
+                json_match = re.search(r'(\{.*\})', extracted_response.content, re.DOTALL)
+                if json_match:
+                    try:
+                        extracted_entities = json.loads(json_match.group(1))
+                        print(f"--> Extracted entities: {extracted_entities}")
+                        
+                        # Update product_data with extracted entities
+                        for key, value in extracted_entities.items():
+                            if value:  # Only add non-empty values
+                                state["product_data"][key] = value
+                                print(f"--> Added extracted entity: {key}={value}")
+                    except json.JSONDecodeError:
+                        print(f"Warning: Could not parse entity extraction result as JSON: {extracted_response.content}")
+            except Exception as e:
+                print(f"Error during entity extraction: {e}")
+                # Continue with the process even if entity extraction fails
 
         except Exception as e:
             print(f"Error during intent classification: {e}")
@@ -347,14 +388,71 @@ Return ONLY the word "product" or "post" without any additional text.
         base_url = state["base_url"]
         data = state["product_data"] # Use the data from the current state
 
-        # --- Check if the current input is an answer to a previous question ---
+        # --- Extract entities from the current input if we're awaiting a specific key ---
         key_to_save = state.get("await_key")
         if key_to_save:
-            # Assume user_input is the answer to the awaited key
-            print(f"--> Saving answer for '{key_to_save}': '{user_input}'")
-            data[key_to_save] = user_input.strip()
-            state["await_key"] = None # Clear the await key after saving
+            # First, try to extract all possible fields from the input in case user provided multiple values
+            entity_extraction_prompt = f"""
+You are an entity extraction model for an agricultural marketplace app.
+The user is providing information for a {intent}.
 
+We specifically need a value for "{key_to_save}", but also check for any of these fields that might be in the message:
+{', '.join([f'"{field[0]}"' for field in (product_fields if intent == "product" else post_fields)])}
+
+Format your response as a JSON object with these field names as keys and the extracted values.
+Only include fields that you are confident are mentioned in the message.
+If a field is not mentioned, do not include it in the JSON.
+Be especially careful to extract "{key_to_save}" if present.
+
+User message: {user_input}
+"""
+            try:
+                # Extract entities from the current message
+                extracted_response = llm.invoke([
+                    SystemMessage(content=entity_extraction_prompt),
+                    HumanMessage(content=user_input)
+                ])
+                
+                # Parse the JSON response
+                import re
+                import json
+                
+                # Extract JSON from the response
+                json_match = re.search(r'(\{.*\})', extracted_response.content, re.DOTALL)
+                if json_match:
+                    try:
+                        extracted_entities = json.loads(json_match.group(1))
+                        print(f"--> Extracted entities: {extracted_entities}")
+                        
+                        # Update product_data with extracted entities
+                        for key, value in extracted_entities.items():
+                            if value:  # Only add non-empty values
+                                data[key] = value
+                                print(f"--> Added extracted entity: {key}={value}")
+                                
+                        # If we found the specific key we were awaiting, clear the await flag
+                        if key_to_save in extracted_entities:
+                            state["await_key"] = None
+                        else:
+                            # If no entity for the awaited key was found, use the whole input as the answer
+                            data[key_to_save] = user_input.strip()
+                            state["await_key"] = None
+                            print(f"--> Using full input for '{key_to_save}': '{user_input}'")
+                            
+                    except json.JSONDecodeError:
+                        print(f"Warning: Could not parse entity extraction result as JSON: {extracted_response.content}")
+                        # Fallback: Use the entire input as the answer to the awaited question
+                        data[key_to_save] = user_input.strip()
+                        state["await_key"] = None
+                        print(f"--> Using full input for '{key_to_save}': '{user_input}'")
+                        
+            except Exception as e:
+                print(f"Error during entity extraction: {e}")
+                # Fallback: Use the entire input as the answer to the awaited question
+                data[key_to_save] = user_input.strip()
+                state["await_key"] = None
+                print(f"--> Using full input for '{key_to_save}': '{user_input}'")
+        
         # --- Determine next step: Ask next question OR finalize ---
         next_key_to_ask = None
         question_to_ask = None
@@ -365,15 +463,18 @@ Return ONLY the word "product" or "post" without any additional text.
                 break # Stop at the first unanswered question
 
         # --- Generate URL based on current data ---
-        # This happens *after* potentially saving an answer
         generated_url = generate_url(base_url, data)
         state["url"] = generated_url # Update URL in state
 
         if next_key_to_ask and question_to_ask:
             # --- Ask the next question ---
             print(f"--> Asking next question for key: '{next_key_to_ask}'")
+            # Create a summary of what we already know
+            collected_info = ", ".join([f"{k}: {v}" for k, v in data.items()])
+            collected_summary = f"Information collected so far: {collected_info}\n\n" if data else ""
+            
             msg_content = (
-                f"{question_to_ask}\n(please type your answer)\n\n"
+                f"{collected_summary}{question_to_ask}\n(please type your answer)\n\n"
                 f"Current progress URL: {generated_url}"
             )
             ai_response_content = msg_content
