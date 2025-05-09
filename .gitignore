@@ -26,6 +26,7 @@ dist-ssr
 .cursor/
 venv/
 .cheatsheet.md
+prompt.md
 .env
 __pycache__/
 audio_files/
