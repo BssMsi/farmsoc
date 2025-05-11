@@ -203,7 +203,7 @@ const ConsumerCart: React.FC = () => {
             </div>
             
             <button 
-              className="mt-4 w-full py-2 bg-farmsoc-primary text-white rounded-lg"
+              className="mt-4 w-full py-2 bg-kisanly-primary text-white rounded-lg"
               onClick={closeHealthModal}
             >
               Close
@@ -215,7 +215,7 @@ const ConsumerCart: React.FC = () => {
       <div className="p-4">
         {isLoading ? (
           <div className="text-center p-8">
-            <div className="w-10 h-10 border-4 border-farmsoc-light border-t-farmsoc-primary rounded-full animate-spin mx-auto"></div>
+            <div className="w-10 h-10 border-4 border-kisanly-light border-t-kisanly-primary rounded-full animate-spin mx-auto"></div>
             <p className="mt-2 text-gray-500">Loading cart...</p>
           </div>
         ) : cartItems.length === 0 ? (
@@ -223,7 +223,7 @@ const ConsumerCart: React.FC = () => {
             <p className="text-gray-500">Your cart is empty.</p>
             <p className="text-gray-500 text-sm mt-1">Add some products to get started!</p>
             <button 
-              className="mt-4 px-4 py-2 bg-farmsoc-primary text-white rounded-lg"
+              className="mt-4 px-4 py-2 bg-kisanly-primary text-white rounded-lg"
               onClick={() => navigate('/app/explore')}
             >
               Browse Products
@@ -265,7 +265,7 @@ const ConsumerCart: React.FC = () => {
                     </div>
                     <p className="text-gray-500 text-sm">{item.product.category}</p>
                     <div className="mt-2 flex justify-between items-center">
-                      <div className="text-farmsoc-primary font-semibold">
+                      <div className="text-kisanly-primary font-semibold">
                         ₹{item.product.price}
                       </div>
                       <div className="flex items-center border rounded">
@@ -307,7 +307,7 @@ const ConsumerCart: React.FC = () => {
               </div>
               
               <button 
-                className="w-full py-3 bg-farmsoc-primary text-white rounded-lg font-medium"
+                className="w-full py-3 bg-kisanly-primary text-white rounded-lg font-medium"
                 onClick={() => setIsCheckingOut(true)}
               >
                 Proceed to Checkout
@@ -329,7 +329,7 @@ const ConsumerCart: React.FC = () => {
                     name="name"
                     value={shippingDetails.name}
                     onChange={handleInputChange}
-                    className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-1 focus:ring-farmsoc-primary"
+                    className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-1 focus:ring-kisanly-primary"
                     required
                   />
                 </div>
@@ -342,7 +342,7 @@ const ConsumerCart: React.FC = () => {
                     name="street"
                     value={shippingDetails.street}
                     onChange={handleInputChange}
-                    className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-1 focus:ring-farmsoc-primary"
+                    className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-1 focus:ring-kisanly-primary"
                     required
                   />
                 </div>
@@ -356,7 +356,7 @@ const ConsumerCart: React.FC = () => {
                       name="city"
                       value={shippingDetails.city}
                       onChange={handleInputChange}
-                      className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-1 focus:ring-farmsoc-primary"
+                      className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-1 focus:ring-kisanly-primary"
                       required
                     />
                   </div>
@@ -369,7 +369,7 @@ const ConsumerCart: React.FC = () => {
                       name="state"
                       value={shippingDetails.state}
                       onChange={handleInputChange}
-                      className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-1 focus:ring-farmsoc-primary"
+                      className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-1 focus:ring-kisanly-primary"
                       required
                     />
                   </div>
@@ -384,7 +384,7 @@ const ConsumerCart: React.FC = () => {
                       name="postalCode"
                       value={shippingDetails.postalCode}
                       onChange={handleInputChange}
-                      className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-1 focus:ring-farmsoc-primary"
+                      className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-1 focus:ring-kisanly-primary"
                       required
                     />
                   </div>
@@ -397,7 +397,7 @@ const ConsumerCart: React.FC = () => {
                       name="country"
                       value={shippingDetails.country}
                       onChange={handleInputChange}
-                      className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-1 focus:ring-farmsoc-primary bg-gray-50"
+                      className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-1 focus:ring-kisanly-primary bg-gray-50"
                       readOnly
                     />
                   </div>
@@ -411,7 +411,7 @@ const ConsumerCart: React.FC = () => {
                     name="phoneNumber"
                     value={shippingDetails.phoneNumber}
                     onChange={handleInputChange}
-                    className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-1 focus:ring-farmsoc-primary"
+                    className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-1 focus:ring-kisanly-primary"
                     required
                   />
                 </div>
@@ -481,14 +481,14 @@ const ConsumerCart: React.FC = () => {
               <div className="flex space-x-4">
                 <button 
                   type="button"
-                  className="flex-1 py-3 border border-farmsoc-primary text-farmsoc-primary rounded-lg font-medium"
+                  className="flex-1 py-3 border border-kisanly-primary text-kisanly-primary rounded-lg font-medium"
                   onClick={() => setIsCheckingOut(false)}
                 >
                   Go Back
                 </button>
                 <button 
                   type="submit"
-                  className="flex-1 py-3 bg-farmsoc-primary text-white rounded-lg font-medium"
+                  className="flex-1 py-3 bg-kisanly-primary text-white rounded-lg font-medium"
                   disabled={checkoutMutation.isPending}
                 >
                   {checkoutMutation.isPending ? 'Processing...' : 'Place Order'}

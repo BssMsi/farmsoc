@@ -44,7 +44,7 @@ const ConsumerEvents: React.FC = () => {
           <button
             className={`pb-2 px-4 flex items-center ${
               activeTab === 'events' 
-              ? 'text-farmsoc-primary border-b-2 border-farmsoc-primary font-medium' 
+              ? 'text-kisanly-primary border-b-2 border-kisanly-primary font-medium' 
               : 'text-gray-500'
             }`}
             onClick={() => setActiveTab('events')}
@@ -55,7 +55,7 @@ const ConsumerEvents: React.FC = () => {
           <button
             className={`pb-2 px-4 flex items-center ${
               activeTab === 'fundraisers' 
-              ? 'text-farmsoc-primary border-b-2 border-farmsoc-primary font-medium' 
+              ? 'text-kisanly-primary border-b-2 border-kisanly-primary font-medium' 
               : 'text-gray-500'
             }`}
             onClick={() => setActiveTab('fundraisers')}
@@ -66,7 +66,7 @@ const ConsumerEvents: React.FC = () => {
           <button
             className={`pb-2 px-4 ${
               activeTab === 'crop-requests' 
-              ? 'text-farmsoc-primary border-b-2 border-farmsoc-primary font-medium' 
+              ? 'text-kisanly-primary border-b-2 border-kisanly-primary font-medium' 
               : 'text-gray-500'
             }`}
             onClick={() => setActiveTab('crop-requests')}
@@ -85,7 +85,7 @@ const ConsumerEvents: React.FC = () => {
             
             {isEventsLoading ? (
               <div className="text-center p-8">
-                <div className="w-10 h-10 border-4 border-farmsoc-light border-t-farmsoc-primary rounded-full animate-spin mx-auto"></div>
+                <div className="w-10 h-10 border-4 border-kisanly-light border-t-kisanly-primary rounded-full animate-spin mx-auto"></div>
                 <p className="mt-2 text-gray-500">Loading events...</p>
               </div>
             ) : upcomingEvents.length === 0 ? (
@@ -111,7 +111,7 @@ const ConsumerEvents: React.FC = () => {
             
             {isFundraisersLoading ? (
               <div className="text-center p-8">
-                <div className="w-10 h-10 border-4 border-farmsoc-light border-t-farmsoc-primary rounded-full animate-spin mx-auto"></div>
+                <div className="w-10 h-10 border-4 border-kisanly-light border-t-kisanly-primary rounded-full animate-spin mx-auto"></div>
                 <p className="mt-2 text-gray-500">Loading fundraisers...</p>
               </div>
             ) : activeFundraisers.length === 0 ? (
@@ -133,14 +133,14 @@ const ConsumerEvents: React.FC = () => {
           <>
             <div className="flex justify-between mb-4">
               <h2 className="text-lg font-medium">Crop Requests</h2>
-              <button className="px-3 py-1 bg-farmsoc-primary text-white rounded-lg text-sm">
+              <button className="px-3 py-1 bg-kisanly-primary text-white rounded-lg text-sm">
                 New Request
               </button>
             </div>
             
             {isCropRequestsLoading ? (
               <div className="text-center p-8">
-                <div className="w-10 h-10 border-4 border-farmsoc-light border-t-farmsoc-primary rounded-full animate-spin mx-auto"></div>
+                <div className="w-10 h-10 border-4 border-kisanly-light border-t-kisanly-primary rounded-full animate-spin mx-auto"></div>
                 <p className="mt-2 text-gray-500">Loading crop requests...</p>
               </div>
             ) : openCropRequests.length === 0 ? (

@@ -47,13 +47,13 @@ describe('ConsumerExplore Component', () => {
     render(<ConsumerExplore />);
     
     // Should start with Products tab active
-    expect(screen.getByText('Products').className).toContain('text-farmsoc-primary');
+    expect(screen.getByText('Products').className).toContain('text-kisanly-primary');
     
     // Click on Farmers tab
     fireEvent.click(screen.getByText('Farmers'));
     
     // Farmers tab should now be active
-    expect(screen.getByText('Farmers').className).toContain('text-farmsoc-primary');
+    expect(screen.getByText('Farmers').className).toContain('text-kisanly-primary');
     
     // Should show empty state for farmers initially
     await waitFor(() => {
@@ -64,7 +64,7 @@ describe('ConsumerExplore Component', () => {
     fireEvent.click(screen.getByText('Fundraisers'));
     
     // Fundraisers tab should now be active
-    expect(screen.getByText('Fundraisers').className).toContain('text-farmsoc-primary');
+    expect(screen.getByText('Fundraisers').className).toContain('text-kisanly-primary');
     
     // Should show coming soon message
     expect(screen.getByText(/Fundraisers coming soon/i)).toBeInTheDocument();

@@ -62,7 +62,7 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ onClose }) => {
       {/* Header with language selector and session manager */}
       <header className="p-4 border-b border-slate-700 flex flex-col gap-3">
         <div className="flex justify-between items-center">
-          <h2 className="text-xl font-semibold">FarmSocial AI Assistant</h2>
+          <h2 className="text-xl font-semibold">kisanlyial AI Assistant</h2>
           <button 
             onClick={onClose} 
             className="p-1 rounded-full hover:bg-slate-700 focus:outline-none"

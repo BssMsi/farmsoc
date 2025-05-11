@@ -49,7 +49,7 @@ const ConsumerHome: React.FC = () => {
           <button
             className={`pb-2 px-4 ${
               activeTab === 'feed' 
-              ? 'text-farmsoc-primary border-b-2 border-farmsoc-primary font-medium' 
+              ? 'text-kisanly-primary border-b-2 border-kisanly-primary font-medium' 
               : 'text-gray-500'
             }`}
             onClick={() => setActiveTab('feed')}
@@ -59,7 +59,7 @@ const ConsumerHome: React.FC = () => {
           <button
             className={`pb-2 px-4 ${
               activeTab === 'recommendations' 
-              ? 'text-farmsoc-primary border-b-2 border-farmsoc-primary font-medium' 
+              ? 'text-kisanly-primary border-b-2 border-kisanly-primary font-medium' 
               : 'text-gray-500'
             }`}
             onClick={() => setActiveTab('recommendations')}
@@ -74,7 +74,7 @@ const ConsumerHome: React.FC = () => {
           <>
             {isPostsLoading ? (
               <div className="text-center p-8">
-                <div className="w-10 h-10 border-4 border-farmsoc-light border-t-farmsoc-primary rounded-full animate-spin mx-auto"></div>
+                <div className="w-10 h-10 border-4 border-kisanly-light border-t-kisanly-primary rounded-full animate-spin mx-auto"></div>
                 <p className="mt-2 text-gray-500">Loading posts...</p>
               </div>
             ) : posts.length === 0 ? (
@@ -111,7 +111,7 @@ const ConsumerHome: React.FC = () => {
               <h2 className="text-lg font-medium mb-2">Recommended for you</h2>
               {isRecommendationsLoading ? (
                 <div className="text-center p-8">
-                  <div className="w-10 h-10 border-4 border-farmsoc-light border-t-farmsoc-primary rounded-full animate-spin mx-auto"></div>
+                  <div className="w-10 h-10 border-4 border-kisanly-light border-t-kisanly-primary rounded-full animate-spin mx-auto"></div>
                   <p className="mt-2 text-gray-500">Loading recommendations...</p>
                 </div>
               ) : recommendedProducts.length === 0 ? (

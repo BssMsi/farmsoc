@@ -47,7 +47,7 @@ const InfluencerHome: React.FC = () => {
           
           {isPostsLoading ? (
             <div className="text-center p-8">
-              <div className="w-10 h-10 border-4 border-farmsoc-light border-t-farmsoc-primary rounded-full animate-spin mx-auto"></div>
+              <div className="w-10 h-10 border-4 border-kisanly-light border-t-kisanly-primary rounded-full animate-spin mx-auto"></div>
               <p className="mt-2 text-gray-500">Loading posts...</p>
             </div>
           ) : posts.length === 0 ? (

@@ -1,10 +1,10 @@
-# FarmSocial
+# kisanly
 
-FarmSocial is a React Native Expo Go app designed for non-English-speaking farmers and health-conscious consumers. The app connects farmers directly with consumers while eliminating intermediaries.
+kisanly is a React Native Expo Go app designed for non-English-speaking farmers and health-conscious consumers. The app connects farmers directly with consumers while eliminating intermediaries.
 
 ## Project Overview
 
-FarmSocial is built with a mobile-first approach and follows enterprise-level coding architecture and best practices. The app will be deployed on Web, Android, and iOS platforms.
+kisanly is built with a mobile-first approach and follows enterprise-level coding architecture and best practices. The app will be deployed on Web, Android, and iOS platforms.
 
 ## User Roles
 

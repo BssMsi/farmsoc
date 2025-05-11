@@ -147,7 +147,7 @@ const CollaborationForm: React.FC<CollaborationFormProps> = ({
                 <IndianRupee className="h-5 w-5 text-gray-400" />
               </div>
               <input
-                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-farmsoc-primary focus:border-transparent"
+                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-kisanly-primary focus:border-transparent"
                 type="number"
                 placeholder="Enter budget in INR"
                 value={collaborationBudget}
@@ -163,7 +163,7 @@ const CollaborationForm: React.FC<CollaborationFormProps> = ({
                 Product Name
               </label>
               <input
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-farmsoc-primary focus:border-transparent"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-kisanly-primary focus:border-transparent"
                 type="text"
                 placeholder="Enter product name"
                 value={productExchangeName}
@@ -176,7 +176,7 @@ const CollaborationForm: React.FC<CollaborationFormProps> = ({
                 Quantity
               </label>
               <input
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-farmsoc-primary focus:border-transparent"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-kisanly-primary focus:border-transparent"
                 type="number"
                 placeholder="Enter quantity"
                 value={productExchangeQuantity}
@@ -196,7 +196,7 @@ const CollaborationForm: React.FC<CollaborationFormProps> = ({
               <Calendar className="h-5 w-5 text-gray-400" />
             </div>
             <input
-              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-farmsoc-primary focus:border-transparent"
+              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-kisanly-primary focus:border-transparent"
               type="text"
               placeholder="e.g., 2 weeks, 1 month"
               value={collaborationTimeline}
@@ -215,7 +215,7 @@ const CollaborationForm: React.FC<CollaborationFormProps> = ({
               <Users className="h-5 w-5 text-gray-400" />
             </div>
             <input
-              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-farmsoc-primary focus:border-transparent"
+              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-kisanly-primary focus:border-transparent"
               type="number"
               placeholder="Enter minimum follower count"
               value={collaborationFollowerCount}
@@ -230,7 +230,7 @@ const CollaborationForm: React.FC<CollaborationFormProps> = ({
             Deadline
           </label>
           <input
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-farmsoc-primary focus:border-transparent"
+            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-kisanly-primary focus:border-transparent"
             type="date"
             value={collaborationDeadline}
             onChange={(e) => setCollaborationDeadline(e.target.value)}
@@ -243,7 +243,7 @@ const CollaborationForm: React.FC<CollaborationFormProps> = ({
             Requirements
           </label>
           <textarea
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-farmsoc-primary focus:border-transparent"
+            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-kisanly-primary focus:border-transparent"
             rows={3}
             placeholder="Enter specific requirements for the collaboration"
             value={collaborationRequirements}
@@ -260,7 +260,7 @@ const CollaborationForm: React.FC<CollaborationFormProps> = ({
 
       <button
         type="submit"
-        className="w-full bg-farmsoc-primary text-white py-3 px-4 rounded-lg font-medium hover:bg-farmsoc-primary/90 transition-colors"
+        className="w-full bg-kisanly-primary text-white py-3 px-4 rounded-lg font-medium hover:bg-kisanly-primary/90 transition-colors"
       >
         Post Collaboration Requirement
       </button>

@@ -178,7 +178,7 @@ const FarmerProfile: React.FC = () => {
           <button
             className={`pb-2 px-4 flex items-center whitespace-nowrap ${
               activeSection === 'profile' 
-              ? 'text-farmsoc-primary border-b-2 border-farmsoc-primary font-medium' 
+              ? 'text-kisanly-primary border-b-2 border-kisanly-primary font-medium' 
               : 'text-gray-500'
             }`}
             onClick={() => setActiveSection('profile')}
@@ -189,7 +189,7 @@ const FarmerProfile: React.FC = () => {
           <button
             className={`pb-2 px-4 flex items-center whitespace-nowrap ${
               activeSection === 'dashboard' 
-              ? 'text-farmsoc-primary border-b-2 border-farmsoc-primary font-medium' 
+              ? 'text-kisanly-primary border-b-2 border-kisanly-primary font-medium' 
               : 'text-gray-500'
             }`}
             onClick={() => setActiveSection('dashboard')}
@@ -200,7 +200,7 @@ const FarmerProfile: React.FC = () => {
           <button
             className={`pb-2 px-4 flex items-center whitespace-nowrap ${
               activeSection === 'payments' 
-              ? 'text-farmsoc-primary border-b-2 border-farmsoc-primary font-medium' 
+              ? 'text-kisanly-primary border-b-2 border-kisanly-primary font-medium' 
               : 'text-gray-500'
             }`}
             onClick={() => setActiveSection('payments')}
@@ -211,7 +211,7 @@ const FarmerProfile: React.FC = () => {
           <button
             className={`pb-2 px-4 flex items-center whitespace-nowrap ${
               activeSection === 'orders' 
-              ? 'text-farmsoc-primary border-b-2 border-farmsoc-primary font-medium' 
+              ? 'text-kisanly-primary border-b-2 border-kisanly-primary font-medium' 
               : 'text-gray-500'
             }`}
             onClick={() => setActiveSection('orders')}
@@ -229,7 +229,7 @@ const FarmerProfile: React.FC = () => {
             <div className="flex justify-between mb-4">
               <h2 className="text-lg font-semibold">Profile Information</h2>
               <button 
-                className="text-farmsoc-primary flex items-center"
+                className="text-kisanly-primary flex items-center"
                 onClick={() => setIsEditing(true)}
               >
                 <Settings size={16} className="mr-1" />
@@ -315,7 +315,7 @@ const FarmerProfile: React.FC = () => {
                   name="name"
                   value={profileData.name}
                   onChange={handleInputChange}
-                  className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-1 focus:ring-farmsoc-primary"
+                  className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-1 focus:ring-kisanly-primary"
                 />
               </div>
               
@@ -340,7 +340,7 @@ const FarmerProfile: React.FC = () => {
                   name="bio"
                   value={profileData.bio}
                   onChange={handleInputChange}
-                  className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-1 focus:ring-farmsoc-primary h-24"
+                  className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-1 focus:ring-kisanly-primary h-24"
                 />
               </div>
               
@@ -353,7 +353,7 @@ const FarmerProfile: React.FC = () => {
                   name="location"
                   value={profileData.location}
                   onChange={handleInputChange}
-                  className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-1 focus:ring-farmsoc-primary"
+                  className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-1 focus:ring-kisanly-primary"
                 />
               </div>
               
@@ -366,7 +366,7 @@ const FarmerProfile: React.FC = () => {
                   name="phoneNumber"
                   value={profileData.phoneNumber}
                   onChange={handleInputChange}
-                  className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-1 focus:ring-farmsoc-primary"
+                  className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-1 focus:ring-kisanly-primary"
                 />
               </div>
               
@@ -400,7 +400,7 @@ const FarmerProfile: React.FC = () => {
                     name="platform"
                     value={newSocialLink.platform}
                     onChange={handleSocialLinkChange}
-                    className="w-1/3 px-3 py-2 border rounded focus:outline-none focus:ring-1 focus:ring-farmsoc-primary"
+                    className="w-1/3 px-3 py-2 border rounded focus:outline-none focus:ring-1 focus:ring-kisanly-primary"
                   >
                     <option value="instagram">Instagram</option>
                     <option value="facebook">Facebook</option>
@@ -415,12 +415,12 @@ const FarmerProfile: React.FC = () => {
                     value={newSocialLink.username}
                     onChange={handleSocialLinkChange}
                     placeholder="Username (without @)"
-                    className="flex-1 px-3 py-2 border rounded focus:outline-none focus:ring-1 focus:ring-farmsoc-primary"
+                    className="flex-1 px-3 py-2 border rounded focus:outline-none focus:ring-1 focus:ring-kisanly-primary"
                   />
                   
                   <button 
                     type="button"
-                    className="px-3 py-2 bg-farmsoc-primary text-white rounded"
+                    className="px-3 py-2 bg-kisanly-primary text-white rounded"
                     onClick={handleAddSocialLink}
                   >
                     Add
@@ -430,7 +430,7 @@ const FarmerProfile: React.FC = () => {
               
               <div className="pt-4">
                 <button 
-                  className="px-4 py-2 bg-farmsoc-primary text-white rounded"
+                  className="px-4 py-2 bg-kisanly-primary text-white rounded"
                   onClick={handleSaveProfile}
                 >
                   Save Changes
@@ -506,7 +506,7 @@ const FarmerProfile: React.FC = () => {
               )}
               
               <button 
-                className="w-full mt-3 py-2 border border-farmsoc-primary text-farmsoc-primary rounded-lg"
+                className="w-full mt-3 py-2 border border-kisanly-primary text-kisanly-primary rounded-lg"
                 onClick={() => setActiveSection('orders')}
               >
                 View All Orders
@@ -540,7 +540,7 @@ const FarmerProfile: React.FC = () => {
                     name="accountName"
                     value={bankDetails.accountName}
                     onChange={handleBankDetailsChange}
-                    className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-1 focus:ring-farmsoc-primary"
+                    className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-1 focus:ring-kisanly-primary"
                   />
                 </div>
                 
@@ -553,7 +553,7 @@ const FarmerProfile: React.FC = () => {
                     name="bankName"
                     value={bankDetails.bankName}
                     onChange={handleBankDetailsChange}
-                    className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-1 focus:ring-farmsoc-primary"
+                    className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-1 focus:ring-kisanly-primary"
                   />
                 </div>
                 
@@ -567,7 +567,7 @@ const FarmerProfile: React.FC = () => {
                       name="accountNumber"
                       value={bankDetails.accountNumber}
                       onChange={handleBankDetailsChange}
-                      className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-1 focus:ring-farmsoc-primary"
+                      className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-1 focus:ring-kisanly-primary"
                     />
                   </div>
                   
@@ -580,7 +580,7 @@ const FarmerProfile: React.FC = () => {
                       name="ifscCode"
                       value={bankDetails.ifscCode}
                       onChange={handleBankDetailsChange}
-                      className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-1 focus:ring-farmsoc-primary"
+                      className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-1 focus:ring-kisanly-primary"
                     />
                   </div>
                 </div>
@@ -594,14 +594,14 @@ const FarmerProfile: React.FC = () => {
                     name="upiId"
                     value={bankDetails.upiId}
                     onChange={handleBankDetailsChange}
-                    className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-1 focus:ring-farmsoc-primary"
+                    className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-1 focus:ring-kisanly-primary"
                     placeholder="yourname@upi"
                   />
                 </div>
                 
                 <button 
                   type="button"
-                  className="px-4 py-2 bg-farmsoc-primary text-white rounded"
+                  className="px-4 py-2 bg-kisanly-primary text-white rounded"
                   onClick={handleSaveProfile}
                 >
                   Save Payment Settings
@@ -664,7 +664,7 @@ const FarmerProfile: React.FC = () => {
                       
                       {order.status === 'pending' && (
                         <div className="flex space-x-2">
-                          <button className="px-3 py-1 bg-farmsoc-primary text-white text-sm rounded">
+                          <button className="px-3 py-1 bg-kisanly-primary text-white text-sm rounded">
                             Accept
                           </button>
                           <button className="px-3 py-1 bg-gray-200 text-gray-700 text-sm rounded">

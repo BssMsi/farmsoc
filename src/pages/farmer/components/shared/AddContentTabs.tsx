@@ -34,7 +34,7 @@ const AddContentTabs: React.FC = () => {
           <button
             className={`px-6 py-2 rounded-lg transition-colors ${
               activeTab === 'product'
-                ? 'bg-farmsoc-primary text-white'
+                ? 'bg-kisanly-primary text-white'
                 : 'text-gray-600 hover:bg-gray-100'
             }`}
             onClick={() => handleTabChange('product')}
@@ -44,7 +44,7 @@ const AddContentTabs: React.FC = () => {
           <button
             className={`px-6 py-2 rounded-lg transition-colors ${
               activeTab === 'post'
-                ? 'bg-farmsoc-primary text-white'
+                ? 'bg-kisanly-primary text-white'
                 : 'text-gray-600 hover:bg-gray-100'
             }`}
             onClick={() => handleTabChange('post')}
@@ -54,7 +54,7 @@ const AddContentTabs: React.FC = () => {
           <button
             className={`px-6 py-2 rounded-lg transition-colors ${
               activeTab === 'collaboration'
-                ? 'bg-farmsoc-primary text-white'
+                ? 'bg-kisanly-primary text-white'
                 : 'text-gray-600 hover:bg-gray-100'
             }`}
             onClick={() => handleTabChange('collaboration')}

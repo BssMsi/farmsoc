@@ -60,7 +60,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onAddToCart }) => {
           className="w-full h-44 object-cover"
         />
         {product.isFeatured && (
-          <div className="absolute top-2 left-2 bg-farmsoc-secondary text-white text-xs px-2 py-1 rounded-md">
+          <div className="absolute top-2 left-2 bg-kisanly-secondary text-white text-xs px-2 py-1 rounded-md">
             Featured
           </div>
         )}
@@ -79,9 +79,9 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onAddToCart }) => {
           </span>
         </div>
         <div className="mt-2 flex justify-between items-center">
-          <div className="text-farmsoc-primary font-semibold">₹{product.price}</div>
+          <div className="text-kisanly-primary font-semibold">₹{product.price}</div>
           <button 
-            className="p-2 bg-farmsoc-primary text-white rounded-full hover:bg-farmsoc-dark"
+            className="p-2 bg-kisanly-primary text-white rounded-full hover:bg-kisanly-dark"
             onClick={handleAddToCart}
             disabled={addToCartMutation.isPending}
           >

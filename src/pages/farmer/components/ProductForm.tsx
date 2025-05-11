@@ -89,7 +89,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ onProductCreated, initialValu
             Product Name
           </label>
           <input
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-farmsoc-primary focus:border-transparent"
+            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-kisanly-primary focus:border-transparent"
             type="text"
             placeholder="Enter product name"
             value={productName}
@@ -103,7 +103,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ onProductCreated, initialValu
             Category
           </label>
           <select
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-farmsoc-primary focus:border-transparent"
+            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-kisanly-primary focus:border-transparent"
             value={productCategory}
             onChange={(e) => setProductCategory(e.target.value as ProductCategory)}
           >
@@ -124,7 +124,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ onProductCreated, initialValu
             Description
           </label>
           <textarea
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-farmsoc-primary focus:border-transparent"
+            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-kisanly-primary focus:border-transparent"
             rows={4}
             placeholder="Enter product description"
             value={productDescription}
@@ -143,7 +143,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ onProductCreated, initialValu
                 <IndianRupee className="h-5 w-5 text-gray-400" />
               </div>
               <input
-                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-farmsoc-primary focus:border-transparent"
+                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-kisanly-primary focus:border-transparent"
                 type="number"
                 placeholder="Enter price"
                 value={productPrice}
@@ -161,7 +161,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ onProductCreated, initialValu
             </label>
             <div className="flex space-x-2">
               <input
-                className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-farmsoc-primary focus:border-transparent"
+                className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-kisanly-primary focus:border-transparent"
                 type="number"
                 placeholder="Enter quantity"
                 value={productQuantity}
@@ -170,7 +170,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ onProductCreated, initialValu
                 min="1"
               />
               <select
-                className="w-24 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-farmsoc-primary focus:border-transparent"
+                className="w-24 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-kisanly-primary focus:border-transparent"
                 value={productUnit}
                 onChange={(e) => setProductUnit(e.target.value as typeof productUnit)}
               >
@@ -197,7 +197,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ onProductCreated, initialValu
 
         <button
           type="submit"
-          className="w-full bg-farmsoc-primary text-white py-3 px-4 rounded-lg font-medium hover:bg-farmsoc-primary/90 transition-colors"
+          className="w-full bg-kisanly-primary text-white py-3 px-4 rounded-lg font-medium hover:bg-kisanly-primary/90 transition-colors"
         >
           Add Product
         </button>

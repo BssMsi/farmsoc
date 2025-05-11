@@ -34,7 +34,7 @@ describe('Login Component', () => {
   test('renders login form correctly', () => {
     render(<Login />);
     
-    expect(screen.getByText('FarmSoc')).toBeInTheDocument();
+    expect(screen.getByText('Kisanly')).toBeInTheDocument();
     expect(screen.getByText('Connect directly with farmers')).toBeInTheDocument();
     expect(screen.getByText('Log In')).toBeInTheDocument();
     expect(screen.getByLabelText('Email Address')).toBeInTheDocument();

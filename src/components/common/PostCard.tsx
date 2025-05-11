@@ -126,7 +126,7 @@ const PostCard: React.FC<PostCardProps> = ({ post, linkedProduct }) => {
       <div className="relative aspect-[4/5] w-full">
         {isMediaLoading && (
           <div className="absolute inset-0 bg-gray-200 animate-pulse flex items-center justify-center">
-            <div className="w-10 h-10 border-4 border-farmsoc-primary border-t-transparent rounded-full animate-spin"></div>
+            <div className="w-10 h-10 border-4 border-kisanly-primary border-t-transparent rounded-full animate-spin"></div>
           </div>
         )}
         <MediaCarousel
@@ -218,7 +218,7 @@ const PostCard: React.FC<PostCardProps> = ({ post, linkedProduct }) => {
                   <button
                     onClick={loadMoreComments}
                     disabled={isLoadingMoreComments}
-                    className="text-xs text-gray-500 hover:text-farmsoc-primary transition-colors"
+                    className="text-xs text-gray-500 hover:text-kisanly-primary transition-colors"
                   >
                     {isLoadingMoreComments ? 'Loading...' : 'View more comments'}
                   </button>
@@ -243,7 +243,7 @@ const PostCard: React.FC<PostCardProps> = ({ post, linkedProduct }) => {
                 }}
               />
               <button 
-                className="ml-2 text-sm font-medium text-farmsoc-primary disabled:opacity-50 disabled:text-gray-400"
+                className="ml-2 text-sm font-medium text-kisanly-primary disabled:opacity-50 disabled:text-gray-400"
                 disabled={!comment.trim() || commentMutation.isPending}
                 onClick={() => commentMutation.mutate()}
               >

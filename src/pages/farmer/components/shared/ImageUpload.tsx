@@ -74,7 +74,7 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
       <div
         {...getRootProps()}
         className={`border-2 border-dashed rounded-lg p-6 text-center cursor-pointer transition-colors
-          ${isDragActive ? 'border-farmsoc-primary bg-farmsoc-primary/5' : 'border-gray-300 hover:border-farmsoc-primary'}
+          ${isDragActive ? 'border-kisanly-primary bg-kisanly-primary/5' : 'border-gray-300 hover:border-kisanly-primary'}
           ${uploading ? 'opacity-50 cursor-not-allowed' : ''}`}
       >
         <input {...getInputProps()} disabled={uploading} />
@@ -104,7 +104,7 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
       {uploading && (
         <div className="mt-2">
           <div className="w-full bg-gray-200 rounded-full h-2.5">
-            <div className="bg-farmsoc-primary h-2.5 rounded-full animate-pulse" style={{ width: '50%' }}></div>
+            <div className="bg-kisanly-primary h-2.5 rounded-full animate-pulse" style={{ width: '50%' }}></div>
           </div>
         </div>
       )}

@@ -263,7 +263,7 @@ const Chat: React.FC = () => {
                       )}
                       <div className={`rounded-lg px-4 py-2 inline-block ${
                         isCurrentUser ? 
-                        'bg-farmsoc-primary text-white rounded-br-none' : 
+                        'bg-kisanly-primary text-white rounded-br-none' : 
                         'bg-white border rounded-bl-none'
                       } ${isTemporary ? 'opacity-70' : ''}`}>
                         {message.content}
@@ -300,15 +300,15 @@ const Chat: React.FC = () => {
       
       {/* Message input */}
       <div className="p-3 border-t flex items-center">
-        <button className="p-2 text-gray-500 hover:text-farmsoc-primary">
+        <button className="p-2 text-gray-500 hover:text-kisanly-primary">
           <Image size={20} />
         </button>
-        <button className="p-2 text-gray-500 hover:text-farmsoc-primary">
+        <button className="p-2 text-gray-500 hover:text-kisanly-primary">
           <Smile size={20} />
         </button>
         <input 
           type="text" 
-          className="flex-1 border rounded-full px-4 py-2 mx-2 focus:outline-none focus:ring-1 focus:ring-farmsoc-primary"
+          className="flex-1 border rounded-full px-4 py-2 mx-2 focus:outline-none focus:ring-1 focus:ring-kisanly-primary"
           placeholder="Type a message..."
           value={newMessage}
           onChange={(e) => setNewMessage(e.target.value)}
@@ -322,7 +322,7 @@ const Chat: React.FC = () => {
         />
         <button 
           className={`p-2 rounded-full ${
-            newMessage.trim() && !sending ? 'bg-farmsoc-primary text-white' : 'bg-gray-200 text-gray-400'
+            newMessage.trim() && !sending ? 'bg-kisanly-primary text-white' : 'bg-gray-200 text-gray-400'
           }`}
           onClick={handleSendMessage}
           disabled={!newMessage.trim() || sending}

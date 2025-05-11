@@ -46,7 +46,7 @@ const Login: React.FC = () => {
     <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-farmsoc-primary">FarmSoc</h1>
+          <h1 className="text-3xl font-bold text-kisanly-primary">kisanly</h1>
           <p className="text-gray-600 mt-2">Connect directly with farmers</p>
         </div>
         
@@ -63,7 +63,7 @@ const Login: React.FC = () => {
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-farmsoc-primary"
+                className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-kisanly-primary"
                 placeholder="Enter your email"
                 required
               />
@@ -78,7 +78,7 @@ const Login: React.FC = () => {
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-farmsoc-primary"
+                className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-kisanly-primary"
                 placeholder="Enter your password"
                 required
               />
@@ -89,7 +89,7 @@ const Login: React.FC = () => {
             
             <button
               type="submit"
-              className="w-full bg-farmsoc-primary text-white py-2 px-4 rounded-md font-medium hover:bg-farmsoc-dark transition-colors"
+              className="w-full bg-kisanly-primary text-white py-2 px-4 rounded-md font-medium hover:bg-kisanly-dark transition-colors"
               disabled={isLoading}
             >
               {isLoading ? 'Logging in...' : 'Log In'}
@@ -99,7 +99,7 @@ const Login: React.FC = () => {
           <div className="mt-6 text-center">
             <p className="text-gray-600">
               Don't have an account?{' '}
-              <Link to="/app/auth/signup" className="text-farmsoc-primary font-medium">
+              <Link to="/app/auth/signup" className="text-kisanly-primary font-medium">
                 Sign Up
               </Link>
             </p>

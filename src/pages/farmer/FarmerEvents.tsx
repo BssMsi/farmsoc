@@ -34,7 +34,7 @@ const FarmerEvents: React.FC = () => {
           <button
             className={`pb-2 px-4 flex items-center ${
               activeTab === 'events' 
-              ? 'text-farmsoc-primary border-b-2 border-farmsoc-primary font-medium' 
+              ? 'text-kisanly-primary border-b-2 border-kisanly-primary font-medium' 
               : 'text-gray-500'
             }`}
             onClick={() => {
@@ -48,7 +48,7 @@ const FarmerEvents: React.FC = () => {
           <button
             className={`pb-2 px-4 flex items-center ${
               activeTab === 'fundraisers' 
-              ? 'text-farmsoc-primary border-b-2 border-farmsoc-primary font-medium' 
+              ? 'text-kisanly-primary border-b-2 border-kisanly-primary font-medium' 
               : 'text-gray-500'
             }`}
             onClick={() => {
@@ -68,7 +68,7 @@ const FarmerEvents: React.FC = () => {
             <div className="flex justify-between mb-4">
               <h2 className="text-lg font-medium">Your Events</h2>
               <button 
-                className="px-4 py-2 bg-farmsoc-primary text-white rounded-lg text-sm flex items-center"
+                className="px-4 py-2 bg-kisanly-primary text-white rounded-lg text-sm flex items-center"
                 onClick={() => setShowNewEventForm(true)}
               >
                 <CalendarPlus size={16} className="mr-1" />
@@ -78,7 +78,7 @@ const FarmerEvents: React.FC = () => {
             
             {isEventsLoading ? (
               <div className="text-center p-8">
-                <div className="w-10 h-10 border-4 border-farmsoc-light border-t-farmsoc-primary rounded-full animate-spin mx-auto"></div>
+                <div className="w-10 h-10 border-4 border-kisanly-light border-t-kisanly-primary rounded-full animate-spin mx-auto"></div>
                 <p className="mt-2 text-gray-500">Loading events...</p>
               </div>
             ) : myEvents.length === 0 ? (
@@ -86,7 +86,7 @@ const FarmerEvents: React.FC = () => {
                 <p className="text-gray-500">You haven't created any events yet.</p>
                 <p className="text-sm text-gray-500 mt-1">Create your first event to connect with consumers.</p>
                 <button 
-                  className="mt-4 px-4 py-2 bg-farmsoc-primary text-white rounded-lg"
+                  className="mt-4 px-4 py-2 bg-kisanly-primary text-white rounded-lg"
                   onClick={() => setShowNewEventForm(true)}
                 >
                   Create Your First Event
@@ -122,7 +122,7 @@ const FarmerEvents: React.FC = () => {
                   </label>
                   <input
                     type="text"
-                    className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-1 focus:ring-farmsoc-primary"
+                    className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-1 focus:ring-kisanly-primary"
                     placeholder="Enter event title"
                     required
                   />
@@ -133,7 +133,7 @@ const FarmerEvents: React.FC = () => {
                     Description *
                   </label>
                   <textarea
-                    className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-1 focus:ring-farmsoc-primary h-24"
+                    className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-1 focus:ring-kisanly-primary h-24"
                     placeholder="Describe your event"
                     required
                   />
@@ -144,7 +144,7 @@ const FarmerEvents: React.FC = () => {
                     Event Type *
                   </label>
                   <select
-                    className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-1 focus:ring-farmsoc-primary"
+                    className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-1 focus:ring-kisanly-primary"
                     required
                   >
                     <option value="harvest">Harvest Activity</option>
@@ -161,7 +161,7 @@ const FarmerEvents: React.FC = () => {
                     </label>
                     <input
                       type="datetime-local"
-                      className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-1 focus:ring-farmsoc-primary"
+                      className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-1 focus:ring-kisanly-primary"
                       required
                     />
                   </div>
@@ -172,7 +172,7 @@ const FarmerEvents: React.FC = () => {
                     </label>
                     <input
                       type="datetime-local"
-                      className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-1 focus:ring-farmsoc-primary"
+                      className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-1 focus:ring-kisanly-primary"
                       required
                     />
                   </div>
@@ -184,7 +184,7 @@ const FarmerEvents: React.FC = () => {
                   </label>
                   <input
                     type="text"
-                    className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-1 focus:ring-farmsoc-primary"
+                    className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-1 focus:ring-kisanly-primary"
                     placeholder="Enter event location"
                     required
                   />
@@ -196,7 +196,7 @@ const FarmerEvents: React.FC = () => {
                   </label>
                   <input
                     type="number"
-                    className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-1 focus:ring-farmsoc-primary"
+                    className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-1 focus:ring-kisanly-primary"
                     placeholder="Leave blank for unlimited"
                     min="1"
                   />
@@ -218,7 +218,7 @@ const FarmerEvents: React.FC = () => {
                 
                 <button
                   type="submit"
-                  className="w-full py-2 bg-farmsoc-primary text-white rounded-lg font-medium"
+                  className="w-full py-2 bg-kisanly-primary text-white rounded-lg font-medium"
                 >
                   Create Event
                 </button>
@@ -232,7 +232,7 @@ const FarmerEvents: React.FC = () => {
             <div className="flex justify-between mb-4">
               <h2 className="text-lg font-medium">Your Fundraisers</h2>
               <button 
-                className="px-4 py-2 bg-farmsoc-primary text-white rounded-lg text-sm flex items-center"
+                className="px-4 py-2 bg-kisanly-primary text-white rounded-lg text-sm flex items-center"
               >
                 <Coins size={16} className="mr-1" />
                 Start Fundraiser
@@ -241,7 +241,7 @@ const FarmerEvents: React.FC = () => {
             
             {isFundraisersLoading ? (
               <div className="text-center p-8">
-                <div className="w-10 h-10 border-4 border-farmsoc-light border-t-farmsoc-primary rounded-full animate-spin mx-auto"></div>
+                <div className="w-10 h-10 border-4 border-kisanly-light border-t-kisanly-primary rounded-full animate-spin mx-auto"></div>
                 <p className="mt-2 text-gray-500">Loading fundraisers...</p>
               </div>
             ) : myFundraisers.length === 0 ? (
@@ -249,7 +249,7 @@ const FarmerEvents: React.FC = () => {
                 <p className="text-gray-500">You haven't created any fundraisers yet.</p>
                 <p className="text-sm text-gray-500 mt-1">Start a fundraiser to expand your farm or improve your operations.</p>
                 <button 
-                  className="mt-4 px-4 py-2 bg-farmsoc-primary text-white rounded-lg"
+                  className="mt-4 px-4 py-2 bg-kisanly-primary text-white rounded-lg"
                 >
                   Start Your First Fundraiser
                 </button>

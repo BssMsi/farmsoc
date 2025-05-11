@@ -67,8 +67,8 @@ export default {
           border: 'hsl(var(--sidebar-border))',
           ring: 'hsl(var(--sidebar-ring))'
         },
-        // FarmSoc custom colors
-        farmsoc: {
+        // kisanly custom colors
+        kisanly: {
           primary: '#4CAF50',
           secondary: '#FF9800',
           accent: '#2196F3',

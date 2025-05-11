@@ -20,7 +20,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   useEffect(() => {
     // Check if user is logged in from localStorage
-    const storedUser = localStorage.getItem('farmsoc_user');
+    const storedUser = localStorage.getItem('kisanly_user');
     if (storedUser) {
       setUser(JSON.parse(storedUser));
     }
@@ -41,7 +41,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       
       if (loggedInUser) {
         setUser(loggedInUser);
-        localStorage.setItem('farmsoc_user', JSON.stringify(loggedInUser));
+        localStorage.setItem('kisanly_user', JSON.stringify(loggedInUser));
       } else {
         throw new Error('Invalid email or password');
       }
@@ -66,7 +66,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       };
       
       setUser(newUser);
-      localStorage.setItem('farmsoc_user', JSON.stringify(newUser));
+      localStorage.setItem('kisanly_user', JSON.stringify(newUser));
     } catch (error) {
       console.error('Signup error:', error);
       throw error;
@@ -77,14 +77,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const logout = async () => {
     setUser(null);
-    localStorage.removeItem('farmsoc_user');
+    localStorage.removeItem('kisanly_user');
   };
 
   const updateUserProfile = async (userData: Partial<User>) => {
     if (user) {
       const updatedUser = { ...user, ...userData };
       setUser(updatedUser);
-      localStorage.setItem('farmsoc_user', JSON.stringify(updatedUser));
+      localStorage.setItem('kisanly_user', JSON.stringify(updatedUser));
     }
   };
 

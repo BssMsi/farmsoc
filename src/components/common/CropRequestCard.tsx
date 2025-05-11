@@ -63,7 +63,7 @@ const CropRequestCard: React.FC<CropRequestCardProps> = ({ cropRequest, onFulfil
         <div className="mt-4 flex space-x-2">
           {cropRequest.status === 'open' && !hasUserVoted && !isFarmer && (
             <button 
-              className="flex-1 py-2 bg-farmsoc-light text-farmsoc-dark font-medium rounded flex items-center justify-center"
+              className="flex-1 py-2 bg-kisanly-light text-kisanly-dark font-medium rounded flex items-center justify-center"
               onClick={() => voteMutation.mutate()}
               disabled={voteMutation.isPending}
             >
@@ -84,7 +84,7 @@ const CropRequestCard: React.FC<CropRequestCardProps> = ({ cropRequest, onFulfil
           
           {cropRequest.status === 'open' && isFarmer && (
             <button 
-              className="flex-1 py-2 bg-farmsoc-primary text-white font-medium rounded"
+              className="flex-1 py-2 bg-kisanly-primary text-white font-medium rounded"
               onClick={() => onFulfill && onFulfill(cropRequest.id)}
             >
               Fulfill This Request

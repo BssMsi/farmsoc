@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Database initialization script for FarmSocial backend.
+Database initialization script for Kisanly backend.
 Ensures that all required tables are created.
 """
 

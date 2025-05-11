@@ -59,7 +59,7 @@ const SignUp: React.FC = () => {
     <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-farmsoc-primary">FarmSoc</h1>
+          <h1 className="text-3xl font-bold text-kisanly-primary">kisanly</h1>
           <p className="text-gray-600 mt-2">Connect directly with farmers</p>
         </div>
         
@@ -76,7 +76,7 @@ const SignUp: React.FC = () => {
                 type="text"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-farmsoc-primary"
+                className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-kisanly-primary"
                 placeholder="Enter your name"
                 required
               />
@@ -91,7 +91,7 @@ const SignUp: React.FC = () => {
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-farmsoc-primary"
+                className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-kisanly-primary"
                 placeholder="Enter your email"
                 required
               />
@@ -106,7 +106,7 @@ const SignUp: React.FC = () => {
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-farmsoc-primary"
+                className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-kisanly-primary"
                 placeholder="Create a password"
                 required
               />
@@ -121,7 +121,7 @@ const SignUp: React.FC = () => {
                 type="password"
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
-                className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-farmsoc-primary"
+                className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-kisanly-primary"
                 placeholder="Confirm your password"
                 required
               />
@@ -136,7 +136,7 @@ const SignUp: React.FC = () => {
                   type="button"
                   className={`py-2 px-4 rounded-md text-center text-sm font-medium ${
                     role === 'consumer' 
-                    ? 'bg-farmsoc-primary text-white' 
+                    ? 'bg-kisanly-primary text-white' 
                     : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                   }`}
                   onClick={() => setRole('consumer')}
@@ -147,7 +147,7 @@ const SignUp: React.FC = () => {
                   type="button"
                   className={`py-2 px-4 rounded-md text-center text-sm font-medium ${
                     role === 'farmer' 
-                    ? 'bg-farmsoc-primary text-white' 
+                    ? 'bg-kisanly-primary text-white' 
                     : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                   }`}
                   onClick={() => setRole('farmer')}
@@ -158,7 +158,7 @@ const SignUp: React.FC = () => {
                   type="button"
                   className={`py-2 px-4 rounded-md text-center text-sm font-medium ${
                     role === 'influencer' 
-                    ? 'bg-farmsoc-primary text-white' 
+                    ? 'bg-kisanly-primary text-white' 
                     : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                   }`}
                   onClick={() => setRole('influencer')}
@@ -170,7 +170,7 @@ const SignUp: React.FC = () => {
             
             <button
               type="submit"
-              className="w-full bg-farmsoc-primary text-white py-2 px-4 rounded-md font-medium hover:bg-farmsoc-dark transition-colors"
+              className="w-full bg-kisanly-primary text-white py-2 px-4 rounded-md font-medium hover:bg-kisanly-dark transition-colors"
               disabled={isLoading}
             >
               {isLoading ? 'Creating account...' : 'Sign Up'}
@@ -180,7 +180,7 @@ const SignUp: React.FC = () => {
           <div className="mt-6 text-center">
             <p className="text-gray-600">
               Already have an account?{' '}
-              <Link to="/app/auth/login" className="text-farmsoc-primary font-medium">
+              <Link to="/app/auth/login" className="text-kisanly-primary font-medium">
                 Log In
               </Link>
             </p>

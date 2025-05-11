@@ -222,7 +222,7 @@ const ConsumerProfile: React.FC = () => {
           <button
             className={`pb-2 px-4 flex items-center ${
               activeSection === 'profile' 
-              ? 'text-farmsoc-primary border-b-2 border-farmsoc-primary font-medium' 
+              ? 'text-kisanly-primary border-b-2 border-kisanly-primary font-medium' 
               : 'text-gray-500'
             }`}
             onClick={() => setActiveSection('profile')}
@@ -233,7 +233,7 @@ const ConsumerProfile: React.FC = () => {
           <button
             className={`pb-2 px-4 flex items-center ${
               activeSection === 'family' 
-              ? 'text-farmsoc-primary border-b-2 border-farmsoc-primary font-medium' 
+              ? 'text-kisanly-primary border-b-2 border-kisanly-primary font-medium' 
               : 'text-gray-500'
             }`}
             onClick={() => setActiveSection('family')}
@@ -244,7 +244,7 @@ const ConsumerProfile: React.FC = () => {
           <button
             className={`pb-2 px-4 flex items-center ${
               activeSection === 'orders' 
-              ? 'text-farmsoc-primary border-b-2 border-farmsoc-primary font-medium' 
+              ? 'text-kisanly-primary border-b-2 border-kisanly-primary font-medium' 
               : 'text-gray-500'
             }`}
             onClick={() => setActiveSection('orders')}
@@ -255,7 +255,7 @@ const ConsumerProfile: React.FC = () => {
           <button
             className={`pb-2 px-4 flex items-center ${
               activeSection === 'payment' 
-              ? 'text-farmsoc-primary border-b-2 border-farmsoc-primary font-medium' 
+              ? 'text-kisanly-primary border-b-2 border-kisanly-primary font-medium' 
               : 'text-gray-500'
             }`}
             onClick={() => setActiveSection('payment')}
@@ -281,7 +281,7 @@ const ConsumerProfile: React.FC = () => {
                     name="name"
                     value={profileData.name}
                     onChange={handleInputChange}
-                    className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-1 focus:ring-farmsoc-primary"
+                    className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-1 focus:ring-kisanly-primary"
                   />
                 </div>
                 
@@ -306,7 +306,7 @@ const ConsumerProfile: React.FC = () => {
                     name="bio"
                     value={profileData.bio}
                     onChange={handleInputChange}
-                    className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-1 focus:ring-farmsoc-primary h-24"
+                    className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-1 focus:ring-kisanly-primary h-24"
                   />
                 </div>
                 
@@ -319,7 +319,7 @@ const ConsumerProfile: React.FC = () => {
                     name="location"
                     value={profileData.location}
                     onChange={handleInputChange}
-                    className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-1 focus:ring-farmsoc-primary"
+                    className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-1 focus:ring-kisanly-primary"
                   />
                 </div>
                 
@@ -332,7 +332,7 @@ const ConsumerProfile: React.FC = () => {
                     name="phoneNumber"
                     value={profileData.phoneNumber}
                     onChange={handleInputChange}
-                    className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-1 focus:ring-farmsoc-primary"
+                    className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-1 focus:ring-kisanly-primary"
                   />
                 </div>
                 
@@ -345,7 +345,7 @@ const ConsumerProfile: React.FC = () => {
                   {/* Selected diseases chips */}
                   <div className="flex flex-wrap gap-2 mb-2">
                     {profileData.diseases.map(disease => (
-                      <div key={disease} className="bg-farmsoc-light text-farmsoc-primary px-2 py-1 rounded-full flex items-center text-sm">
+                      <div key={disease} className="bg-kisanly-light text-kisanly-primary px-2 py-1 rounded-full flex items-center text-sm">
                         {disease}
                         <button 
                           onClick={() => handleDiseaseRemove(disease)}
@@ -361,7 +361,7 @@ const ConsumerProfile: React.FC = () => {
                   <div className="relative">
                     <button
                       onClick={() => setIsDiseasesOpen(!isDiseasesOpen)}
-                      className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-1 focus:ring-farmsoc-primary text-left flex justify-between items-center"
+                      className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-1 focus:ring-kisanly-primary text-left flex justify-between items-center"
                     >
                       <span>Select conditions</span>
                       <span className="text-gray-400">▼</span>
@@ -389,11 +389,11 @@ const ConsumerProfile: React.FC = () => {
                               value={newDisease}
                               onChange={handleNewDiseaseInput}
                               placeholder="Add custom condition"
-                              className="flex-grow px-2 py-1 border rounded-l focus:outline-none focus:ring-1 focus:ring-farmsoc-primary"
+                              className="flex-grow px-2 py-1 border rounded-l focus:outline-none focus:ring-1 focus:ring-kisanly-primary"
                             />
                             <button
                               onClick={handleAddCustomDisease}
-                              className="bg-farmsoc-primary text-white px-2 py-1 rounded-r"
+                              className="bg-kisanly-primary text-white px-2 py-1 rounded-r"
                             >
                               Add
                             </button>
@@ -406,7 +406,7 @@ const ConsumerProfile: React.FC = () => {
                 
                 <div className="flex space-x-3">
                   <button 
-                    className="px-4 py-2 bg-farmsoc-primary text-white rounded"
+                    className="px-4 py-2 bg-kisanly-primary text-white rounded"
                     onClick={handleSaveProfile}
                   >
                     Save Changes
@@ -424,7 +424,7 @@ const ConsumerProfile: React.FC = () => {
                 <div className="flex justify-between mb-4">
                   <h2 className="text-lg font-semibold">Profile Information</h2>
                   <button 
-                    className="text-farmsoc-primary flex items-center"
+                    className="text-kisanly-primary flex items-center"
                     onClick={() => setIsEditing(true)}
                   >
                     <Settings size={16} className="mr-1" />
@@ -463,7 +463,7 @@ const ConsumerProfile: React.FC = () => {
                     {user?.diseases && user.diseases.length > 0 ? (
                       <div className="flex flex-wrap gap-2 mt-1">
                         {user.diseases.map(disease => (
-                          <div key={disease} className="bg-farmsoc-light text-farmsoc-primary px-2 py-1 rounded-full text-sm">
+                          <div key={disease} className="bg-kisanly-light text-kisanly-primary px-2 py-1 rounded-full text-sm">
                             {disease}
                           </div>
                         ))}
@@ -535,7 +535,7 @@ const ConsumerProfile: React.FC = () => {
                     name="name"
                     value={newFamilyMember.name}
                     onChange={handleFamilyMemberInputChange}
-                    className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-1 focus:ring-farmsoc-primary"
+                    className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-1 focus:ring-kisanly-primary"
                     placeholder="Enter name"
                   />
                 </div>
@@ -548,7 +548,7 @@ const ConsumerProfile: React.FC = () => {
                     name="relationship"
                     value={newFamilyMember.relationship}
                     onChange={handleFamilyMemberInputChange}
-                    className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-1 focus:ring-farmsoc-primary"
+                    className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-1 focus:ring-kisanly-primary"
                   >
                     <option value="spouse">Spouse</option>
                     <option value="child">Child</option>
@@ -567,7 +567,7 @@ const ConsumerProfile: React.FC = () => {
                     name="age"
                     value={newFamilyMember.age || ''}
                     onChange={handleFamilyMemberInputChange}
-                    className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-1 focus:ring-farmsoc-primary"
+                    className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-1 focus:ring-kisanly-primary"
                     placeholder="Enter age"
                     min="1"
                     max="120"
@@ -575,7 +575,7 @@ const ConsumerProfile: React.FC = () => {
                 </div>
                 
                 <button 
-                  className="px-4 py-2 bg-farmsoc-primary text-white rounded flex items-center"
+                  className="px-4 py-2 bg-kisanly-primary text-white rounded flex items-center"
                   onClick={handleAddFamilyMember}
                 >
                   <PlusCircle size={16} className="mr-1" />
@@ -593,7 +593,7 @@ const ConsumerProfile: React.FC = () => {
             
             {isOrdersLoading ? (
               <div className="text-center p-8">
-                <div className="w-10 h-10 border-4 border-farmsoc-light border-t-farmsoc-primary rounded-full animate-spin mx-auto"></div>
+                <div className="w-10 h-10 border-4 border-kisanly-light border-t-kisanly-primary rounded-full animate-spin mx-auto"></div>
                 <p className="mt-2 text-gray-500">Loading orders...</p>
               </div>
             ) : orders.length === 0 ? (
@@ -655,7 +655,7 @@ const ConsumerProfile: React.FC = () => {
               <CreditCard size={32} className="mx-auto text-gray-400 mb-2" />
               <p className="text-gray-500">No payment methods saved yet.</p>
               <p className="text-sm text-gray-500">Add a credit card or other payment method for faster checkout.</p>
-              <button className="mt-4 px-4 py-2 bg-farmsoc-primary text-white rounded">
+              <button className="mt-4 px-4 py-2 bg-kisanly-primary text-white rounded">
                 Add Payment Method
               </button>
             </div>

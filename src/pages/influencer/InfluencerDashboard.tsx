@@ -157,7 +157,7 @@ const InfluencerDashboard: React.FC = () => {
                   
                   {campaign.status === 'active' && (
                     <div className="mt-3 pt-3 border-t flex justify-end">
-                      <button className="px-3 py-1 bg-farmsoc-primary text-white text-sm rounded">
+                      <button className="px-3 py-1 bg-kisanly-primary text-white text-sm rounded">
                         View Details
                       </button>
                     </div>

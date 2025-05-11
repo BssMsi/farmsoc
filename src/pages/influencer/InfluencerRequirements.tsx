@@ -64,7 +64,7 @@ const InfluencerRequirements: React.FC = () => {
           <input
             type="text"
             placeholder="Search requirements..."
-            className="w-full bg-gray-100 border-0 rounded-lg py-3 pl-10 pr-4 focus:outline-none focus:ring-2 focus:ring-farmsoc-primary"
+            className="w-full bg-gray-100 border-0 rounded-lg py-3 pl-10 pr-4 focus:outline-none focus:ring-2 focus:ring-kisanly-primary"
           />
           <Search className="absolute left-3 top-3 text-gray-400" size={20} />
         </div>
@@ -120,7 +120,7 @@ const InfluencerRequirements: React.FC = () => {
                   </div>
                   
                   <div className="mt-4 pt-3 border-t flex justify-end">
-                    <button className="px-4 py-2 bg-farmsoc-primary text-white rounded">
+                    <button className="px-4 py-2 bg-kisanly-primary text-white rounded">
                       Apply Now
                     </button>
                   </div>

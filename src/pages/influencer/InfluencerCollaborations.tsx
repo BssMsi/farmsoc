@@ -83,7 +83,7 @@ const InfluencerCollaborations: React.FC = () => {
           <div className="p-4 border-b flex justify-between items-center">
             <h2 className="font-medium">Filters</h2>
             <button
-              className="flex items-center text-farmsoc-primary"
+              className="flex items-center text-kisanly-primary"
               onClick={() => setFilterOpen(!filterOpen)}
             >
               <Filter size={16} className="mr-1" />
@@ -100,7 +100,7 @@ const InfluencerCollaborations: React.FC = () => {
                 <select
                   value={filters.status}
                   onChange={(e) => setFilters({...filters, status: e.target.value})}
-                  className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-1 focus:ring-farmsoc-primary"
+                  className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-1 focus:ring-kisanly-primary"
                 >
                   <option value="all">All Statuses</option>
                   <option value="open">Open</option>
@@ -116,7 +116,7 @@ const InfluencerCollaborations: React.FC = () => {
                 <select
                   value={filters.compensation}
                   onChange={(e) => setFilters({...filters, compensation: e.target.value})}
-                  className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-1 focus:ring-farmsoc-primary"
+                  className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-1 focus:ring-kisanly-primary"
                 >
                   <option value="all">All Types</option>
                   <option value="product">Product Only</option>
@@ -174,7 +174,7 @@ const InfluencerCollaborations: React.FC = () => {
                         {collab.products.map((product, index) => (
                           <span 
                             key={index} 
-                            className="px-2 py-1 bg-farmsoc-light text-farmsoc-dark text-xs rounded-full"
+                            className="px-2 py-1 bg-kisanly-light text-kisanly-dark text-xs rounded-full"
                           >
                             {product}
                           </span>
@@ -190,7 +190,7 @@ const InfluencerCollaborations: React.FC = () => {
                         <button className="p-2 border rounded-full">
                           <X size={16} className="text-gray-500" />
                         </button>
-                        <button className="px-4 py-2 bg-farmsoc-primary text-white rounded flex items-center">
+                        <button className="px-4 py-2 bg-kisanly-primary text-white rounded flex items-center">
                           <ThumbsUp size={16} className="mr-1" />
                           Apply
                         </button>

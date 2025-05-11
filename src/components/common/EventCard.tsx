@@ -87,7 +87,7 @@ const EventCard: React.FC<EventCardProps> = ({ event }) => {
         <div className="mt-4">
           {isUserJoined ? (
             <button 
-              className="w-full py-2 bg-farmsoc-light text-farmsoc-dark font-medium rounded"
+              className="w-full py-2 bg-kisanly-light text-kisanly-dark font-medium rounded"
               disabled
             >
               Already Joined
@@ -109,7 +109,7 @@ const EventCard: React.FC<EventCardProps> = ({ event }) => {
             </button>
           ) : (
             <button 
-              className="w-full py-2 bg-farmsoc-primary text-white font-medium rounded hover:bg-farmsoc-dark"
+              className="w-full py-2 bg-kisanly-primary text-white font-medium rounded hover:bg-kisanly-dark"
               onClick={() => joinEventMutation.mutate()}
               disabled={joinEventMutation.isPending}
             >

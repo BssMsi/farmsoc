@@ -1,4 +1,4 @@
-# FarmSocial Backend API
+# Kisanly Backend API
 
 ## WebSocket API
 

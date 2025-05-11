@@ -137,7 +137,7 @@ const PostForm: React.FC<PostFormProps> = ({ onPostCreated, initialValues = {} }
             Content
           </label>
           <textarea
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-farmsoc-primary focus:border-transparent"
+            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-kisanly-primary focus:border-transparent"
             rows={4}
             placeholder="Write your post content"
             value={postContent}
@@ -161,7 +161,7 @@ const PostForm: React.FC<PostFormProps> = ({ onPostCreated, initialValues = {} }
             Product
           </label>
           <select
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-farmsoc-primary focus:border-transparent"
+            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-kisanly-primary focus:border-transparent"
             value={selectedProductId}
             onChange={(e) => setSelectedProductId(e.target.value)}
             required
@@ -196,7 +196,7 @@ const PostForm: React.FC<PostFormProps> = ({ onPostCreated, initialValues = {} }
 
           <button
             type="submit"
-            className="bg-farmsoc-primary text-white py-2 px-4 rounded-lg font-medium hover:bg-farmsoc-primary/90 transition-colors"
+            className="bg-kisanly-primary text-white py-2 px-4 rounded-lg font-medium hover:bg-kisanly-primary/90 transition-colors"
           >
             Create Post
           </button>

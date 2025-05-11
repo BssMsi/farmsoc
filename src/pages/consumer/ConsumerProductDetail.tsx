@@ -61,7 +61,7 @@ const ConsumerProductDetail: React.FC = () => {
   if (isLoading) {
     return (
       <div className="h-full flex items-center justify-center">
-        <div className="w-12 h-12 border-4 border-farmsoc-light border-t-farmsoc-primary rounded-full animate-spin"></div>
+        <div className="w-12 h-12 border-4 border-kisanly-light border-t-kisanly-primary rounded-full animate-spin"></div>
       </div>
     );
   }
@@ -72,7 +72,7 @@ const ConsumerProductDetail: React.FC = () => {
         <h2 className="text-xl font-semibold mb-2">Product Not Found</h2>
         <p className="text-gray-500 mb-4">The product you're looking for doesn't exist or has been removed.</p>
         <button 
-          className="px-4 py-2 bg-farmsoc-primary text-white rounded-lg"
+          className="px-4 py-2 bg-kisanly-primary text-white rounded-lg"
           onClick={() => navigate('/app/explore')}
         >
           Browse Products
@@ -111,7 +111,7 @@ const ConsumerProductDetail: React.FC = () => {
                     key={index}
                     onClick={() => setActiveImageIndex(index)}
                     className={`w-20 h-20 rounded-lg overflow-hidden ${
-                      activeImageIndex === index ? 'ring-2 ring-farmsoc-primary' : ''
+                      activeImageIndex === index ? 'ring-2 ring-kisanly-primary' : ''
                     }`}
                   >
                     <img
@@ -179,7 +179,7 @@ const ConsumerProductDetail: React.FC = () => {
 
               <button
                 onClick={handleAddToCart}
-                className="w-full bg-farmsoc-primary text-white py-3 px-4 rounded-lg font-medium hover:bg-farmsoc-primary/90 transition-colors flex items-center justify-center"
+                className="w-full bg-kisanly-primary text-white py-3 px-4 rounded-lg font-medium hover:bg-kisanly-primary/90 transition-colors flex items-center justify-center"
               >
                 <ShoppingCart className="h-5 w-5 mr-2" />
                 Add to Cart

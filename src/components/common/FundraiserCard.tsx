@@ -80,7 +80,7 @@ const FundraiserCard: React.FC<FundraiserCardProps> = ({ fundraiser }) => {
           </div>
           <div className="w-full bg-gray-200 rounded-full h-2.5">
             <div 
-              className="bg-farmsoc-primary h-2.5 rounded-full" 
+              className="bg-kisanly-primary h-2.5 rounded-full" 
               style={{ width: `${progressPercentage}%` }}
             ></div>
           </div>
@@ -98,7 +98,7 @@ const FundraiserCard: React.FC<FundraiserCardProps> = ({ fundraiser }) => {
                 min="100"
                 value={donationAmount}
                 onChange={(e) => setDonationAmount(Number(e.target.value))}
-                className="w-full p-2 border rounded focus:outline-none focus:ring-1 focus:ring-farmsoc-primary"
+                className="w-full p-2 border rounded focus:outline-none focus:ring-1 focus:ring-kisanly-primary"
               />
             </div>
             <div className="mb-3 flex items-center">
@@ -113,7 +113,7 @@ const FundraiserCard: React.FC<FundraiserCardProps> = ({ fundraiser }) => {
             </div>
             <div className="flex space-x-2">
               <button 
-                className="flex-1 py-2 bg-farmsoc-primary text-white font-medium rounded"
+                className="flex-1 py-2 bg-kisanly-primary text-white font-medium rounded"
                 onClick={() => contributeMutation.mutate()}
                 disabled={contributeMutation.isPending || donationAmount < 100}
               >
@@ -131,7 +131,7 @@ const FundraiserCard: React.FC<FundraiserCardProps> = ({ fundraiser }) => {
           <div className="mt-4">
             {fundraiser.status === 'active' ? (
               <button 
-                className="w-full py-2 bg-farmsoc-primary text-white font-medium rounded flex items-center justify-center"
+                className="w-full py-2 bg-kisanly-primary text-white font-medium rounded flex items-center justify-center"
                 onClick={() => setShowDonationForm(true)}
               >
                 <CreditCard size={16} className="mr-2" />

@@ -172,7 +172,7 @@ const InfluencerProfile: React.FC = () => {
           <button
             className={`pb-2 px-4 flex items-center ${
               activeSection === 'profile' 
-              ? 'text-farmsoc-primary border-b-2 border-farmsoc-primary font-medium' 
+              ? 'text-kisanly-primary border-b-2 border-kisanly-primary font-medium' 
               : 'text-gray-500'
             }`}
             onClick={() => setActiveSection('profile')}
@@ -183,7 +183,7 @@ const InfluencerProfile: React.FC = () => {
           <button
             className={`pb-2 px-4 flex items-center ${
               activeSection === 'payouts' 
-              ? 'text-farmsoc-primary border-b-2 border-farmsoc-primary font-medium' 
+              ? 'text-kisanly-primary border-b-2 border-kisanly-primary font-medium' 
               : 'text-gray-500'
             }`}
             onClick={() => setActiveSection('payouts')}
@@ -201,7 +201,7 @@ const InfluencerProfile: React.FC = () => {
             <div className="flex justify-between mb-4">
               <h2 className="text-lg font-semibold">Profile Information</h2>
               <button 
-                className="text-farmsoc-primary flex items-center"
+                className="text-kisanly-primary flex items-center"
                 onClick={() => setIsEditing(true)}
               >
                 <Settings size={16} className="mr-1" />
@@ -287,7 +287,7 @@ const InfluencerProfile: React.FC = () => {
                   name="name"
                   value={profileData.name}
                   onChange={handleInputChange}
-                  className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-1 focus:ring-farmsoc-primary"
+                  className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-1 focus:ring-kisanly-primary"
                 />
               </div>
               
@@ -312,7 +312,7 @@ const InfluencerProfile: React.FC = () => {
                   name="bio"
                   value={profileData.bio}
                   onChange={handleInputChange}
-                  className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-1 focus:ring-farmsoc-primary h-24"
+                  className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-1 focus:ring-kisanly-primary h-24"
                   placeholder="Tell farmers and consumers about yourself and your content..."
                 />
               </div>
@@ -326,7 +326,7 @@ const InfluencerProfile: React.FC = () => {
                   name="location"
                   value={profileData.location}
                   onChange={handleInputChange}
-                  className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-1 focus:ring-farmsoc-primary"
+                  className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-1 focus:ring-kisanly-primary"
                 />
               </div>
               
@@ -339,7 +339,7 @@ const InfluencerProfile: React.FC = () => {
                   name="phoneNumber"
                   value={profileData.phoneNumber}
                   onChange={handleInputChange}
-                  className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-1 focus:ring-farmsoc-primary"
+                  className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-1 focus:ring-kisanly-primary"
                 />
               </div>
               
@@ -373,7 +373,7 @@ const InfluencerProfile: React.FC = () => {
                     name="platform"
                     value={newSocialLink.platform}
                     onChange={handleSocialLinkChange}
-                    className="w-1/3 px-3 py-2 border rounded focus:outline-none focus:ring-1 focus:ring-farmsoc-primary"
+                    className="w-1/3 px-3 py-2 border rounded focus:outline-none focus:ring-1 focus:ring-kisanly-primary"
                   >
                     <option value="instagram">Instagram</option>
                     <option value="facebook">Facebook</option>
@@ -390,12 +390,12 @@ const InfluencerProfile: React.FC = () => {
                     value={newSocialLink.username}
                     onChange={handleSocialLinkChange}
                     placeholder="Username (without @)"
-                    className="flex-1 px-3 py-2 border rounded focus:outline-none focus:ring-1 focus:ring-farmsoc-primary"
+                    className="flex-1 px-3 py-2 border rounded focus:outline-none focus:ring-1 focus:ring-kisanly-primary"
                   />
                   
                   <button 
                     type="button"
-                    className="px-3 py-2 bg-farmsoc-primary text-white rounded"
+                    className="px-3 py-2 bg-kisanly-primary text-white rounded"
                     onClick={handleAddSocialLink}
                   >
                     Add
@@ -417,7 +417,7 @@ const InfluencerProfile: React.FC = () => {
                       name="accountName"
                       value={bankDetails.accountName}
                       onChange={handleBankDetailsChange}
-                      className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-1 focus:ring-farmsoc-primary"
+                      className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-1 focus:ring-kisanly-primary"
                     />
                   </div>
                   
@@ -430,7 +430,7 @@ const InfluencerProfile: React.FC = () => {
                       name="bankName"
                       value={bankDetails.bankName}
                       onChange={handleBankDetailsChange}
-                      className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-1 focus:ring-farmsoc-primary"
+                      className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-1 focus:ring-kisanly-primary"
                     />
                   </div>
                   
@@ -444,7 +444,7 @@ const InfluencerProfile: React.FC = () => {
                         name="accountNumber"
                         value={bankDetails.accountNumber}
                         onChange={handleBankDetailsChange}
-                        className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-1 focus:ring-farmsoc-primary"
+                        className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-1 focus:ring-kisanly-primary"
                       />
                     </div>
                     
@@ -457,7 +457,7 @@ const InfluencerProfile: React.FC = () => {
                         name="ifscCode"
                         value={bankDetails.ifscCode}
                         onChange={handleBankDetailsChange}
-                        className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-1 focus:ring-farmsoc-primary"
+                        className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-1 focus:ring-kisanly-primary"
                       />
                     </div>
                   </div>
@@ -471,7 +471,7 @@ const InfluencerProfile: React.FC = () => {
                       name="upiId"
                       value={bankDetails.upiId}
                       onChange={handleBankDetailsChange}
-                      className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-1 focus:ring-farmsoc-primary"
+                      className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-1 focus:ring-kisanly-primary"
                       placeholder="yourname@upi"
                     />
                   </div>
@@ -480,7 +480,7 @@ const InfluencerProfile: React.FC = () => {
               
               <div className="pt-4">
                 <button 
-                  className="px-4 py-2 bg-farmsoc-primary text-white rounded"
+                  className="px-4 py-2 bg-kisanly-primary text-white rounded"
                   onClick={handleSaveProfile}
                 >
                   Save Changes
@@ -500,7 +500,7 @@ const InfluencerProfile: React.FC = () => {
                 <div className="p-3 border rounded-lg">
                   <div className="text-gray-500 text-sm">Available Balance</div>
                   <div className="text-2xl font-bold">₹6,200</div>
-                  <button className="mt-2 px-3 py-1 bg-farmsoc-primary text-white text-sm rounded">
+                  <button className="mt-2 px-3 py-1 bg-kisanly-primary text-white text-sm rounded">
                     Withdraw
                   </button>
                 </div>
@@ -515,7 +515,7 @@ const InfluencerProfile: React.FC = () => {
             <div className="bg-white rounded-lg shadow p-4">
               <div className="flex justify-between mb-4">
                 <h2 className="text-lg font-semibold">Payout History</h2>
-                <button className="text-farmsoc-primary text-sm">View All</button>
+                <button className="text-kisanly-primary text-sm">View All</button>
               </div>
               
               {payouts.length === 0 ? (
@@ -565,7 +565,7 @@ const InfluencerProfile: React.FC = () => {
                       </div>
                     </div>
                   </div>
-                  <button className="text-farmsoc-primary text-sm">
+                  <button className="text-kisanly-primary text-sm">
                     {bankDetails.accountName ? 'Edit' : 'Add'}
                   </button>
                 </div>
@@ -580,7 +580,7 @@ const InfluencerProfile: React.FC = () => {
                       </div>
                     </div>
                   </div>
-                  <button className="text-farmsoc-primary text-sm">
+                  <button className="text-kisanly-primary text-sm">
                     {bankDetails.upiId ? 'Edit' : 'Add'}
                   </button>
                 </div>

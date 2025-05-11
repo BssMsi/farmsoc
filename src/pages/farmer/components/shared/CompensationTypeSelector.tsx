@@ -20,7 +20,7 @@ const CompensationTypeSelector: React.FC<CompensationTypeSelectorProps> = ({
           onClick={() => setCompensationType('monetary')}
           className={`flex-1 px-4 py-2 rounded-lg border ${
             compensationType === 'monetary'
-              ? 'bg-farmsoc-primary text-white border-farmsoc-primary'
+              ? 'bg-kisanly-primary text-white border-kisanly-primary'
               : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
           }`}
         >
@@ -31,7 +31,7 @@ const CompensationTypeSelector: React.FC<CompensationTypeSelectorProps> = ({
           onClick={() => setCompensationType('product')}
           className={`flex-1 px-4 py-2 rounded-lg border ${
             compensationType === 'product'
-              ? 'bg-farmsoc-primary text-white border-farmsoc-primary'
+              ? 'bg-kisanly-primary text-white border-kisanly-primary'
               : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
           }`}
         >

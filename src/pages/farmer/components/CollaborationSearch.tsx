@@ -158,7 +158,7 @@ const CollaborationSearch: React.FC<CollaborationSearchProps> = ({ onInfluencerS
               placeholder="Enter location"
               value={searchFilters.location}
               onChange={(e) => setSearchFilters({ ...searchFilters, location: e.target.value })}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-farmsoc-primary focus:border-transparent"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-kisanly-primary focus:border-transparent"
             />
           </div>
           <div className="grid grid-cols-2 gap-2">
@@ -171,7 +171,7 @@ const CollaborationSearch: React.FC<CollaborationSearchProps> = ({ onInfluencerS
                 placeholder="Min"
                 value={searchFilters.minAge}
                 onChange={(e) => setSearchFilters({ ...searchFilters, minAge: e.target.value })}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-farmsoc-primary focus:border-transparent"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-kisanly-primary focus:border-transparent"
               />
             </div>
             <div>
@@ -183,7 +183,7 @@ const CollaborationSearch: React.FC<CollaborationSearchProps> = ({ onInfluencerS
                 placeholder="Max"
                 value={searchFilters.maxAge}
                 onChange={(e) => setSearchFilters({ ...searchFilters, maxAge: e.target.value })}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-farmsoc-primary focus:border-transparent"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-kisanly-primary focus:border-transparent"
               />
             </div>
           </div>
@@ -197,7 +197,7 @@ const CollaborationSearch: React.FC<CollaborationSearchProps> = ({ onInfluencerS
                 placeholder="Min"
                 value={searchFilters.minFollowers}
                 onChange={(e) => setSearchFilters({ ...searchFilters, minFollowers: e.target.value })}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-farmsoc-primary focus:border-transparent"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-kisanly-primary focus:border-transparent"
               />
             </div>
             <div>
@@ -209,7 +209,7 @@ const CollaborationSearch: React.FC<CollaborationSearchProps> = ({ onInfluencerS
                 placeholder="Max"
                 value={searchFilters.maxFollowers}
                 onChange={(e) => setSearchFilters({ ...searchFilters, maxFollowers: e.target.value })}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-farmsoc-primary focus:border-transparent"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-kisanly-primary focus:border-transparent"
               />
             </div>
           </div>
@@ -230,7 +230,7 @@ const CollaborationSearch: React.FC<CollaborationSearchProps> = ({ onInfluencerS
                   }}
                   className={`px-3 py-1 rounded-full text-sm ${
                     searchFilters.minCompensation === type
-                      ? 'bg-farmsoc-primary text-white'
+                      ? 'bg-kisanly-primary text-white'
                       : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
                   }`}
                 >
@@ -243,7 +243,7 @@ const CollaborationSearch: React.FC<CollaborationSearchProps> = ({ onInfluencerS
         <div className="mt-4">
           <button
             onClick={handleSearch}
-            className="w-full sm:w-auto px-6 py-2 bg-farmsoc-primary text-white rounded-lg hover:bg-farmsoc-primary/90 transition-colors"
+            className="w-full sm:w-auto px-6 py-2 bg-kisanly-primary text-white rounded-lg hover:bg-kisanly-primary/90 transition-colors"
           >
             Search Influencers
           </button>
@@ -299,7 +299,7 @@ const CollaborationSearch: React.FC<CollaborationSearchProps> = ({ onInfluencerS
                     {influencer.compensation.map(type => (
                       <span
                         key={type}
-                        className="px-2 py-1 bg-farmsoc-light text-farmsoc-dark rounded-full text-xs"
+                        className="px-2 py-1 bg-kisanly-light text-kisanly-dark rounded-full text-xs"
                       >
                         {type.charAt(0).toUpperCase() + type.slice(1)}
                       </span>
@@ -308,7 +308,7 @@ const CollaborationSearch: React.FC<CollaborationSearchProps> = ({ onInfluencerS
 
                   <div className="mt-4 flex justify-end">
                     <button
-                      className="px-4 py-2 bg-farmsoc-primary text-white rounded-lg hover:bg-farmsoc-primary/90 transition-colors w-full sm:w-auto"
+                      className="px-4 py-2 bg-kisanly-primary text-white rounded-lg hover:bg-kisanly-primary/90 transition-colors w-full sm:w-auto"
                       onClick={() => onInfluencerSelected?.(influencer)}
                     >
                       Create Collaboration

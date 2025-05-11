@@ -139,7 +139,7 @@ const Messages: React.FC = () => {
             </div>
           )}
           <button 
-            className="p-2 bg-farmsoc-primary text-white rounded-full"
+            className="p-2 bg-kisanly-primary text-white rounded-full"
             onClick={() => setShowNewChatModal(true)}
           >
             <Plus size={20} />

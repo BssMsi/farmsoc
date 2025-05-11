@@ -73,7 +73,7 @@ const FarmerAddCollaboration: React.FC = () => {
               <button
                 className={`px-6 py-2 rounded-lg transition-colors ${
                   activeTab === 'search'
-                    ? 'bg-farmsoc-primary text-white'
+                    ? 'bg-kisanly-primary text-white'
                     : 'text-gray-600 hover:bg-gray-100'
                 }`}
                 onClick={() => setActiveTab('search')}
@@ -83,7 +83,7 @@ const FarmerAddCollaboration: React.FC = () => {
               <button
                 className={`px-6 py-2 rounded-lg transition-colors ${
                   activeTab === 'add'
-                    ? 'bg-farmsoc-primary text-white'
+                    ? 'bg-kisanly-primary text-white'
                     : 'text-gray-600 hover:bg-gray-100'
                 }`}
                 onClick={() => setActiveTab('add')}

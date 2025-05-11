@@ -66,13 +66,13 @@ describe('ConsumerHome Component', () => {
     render(<ConsumerHome />);
     
     // Should start with Feed tab active
-    expect(screen.getByText('Feed').className).toContain('text-farmsoc-primary');
+    expect(screen.getByText('Feed').className).toContain('text-kisanly-primary');
     
     // Click on For You tab
     fireEvent.click(screen.getByText('For You'));
     
     // For You tab should now be active
-    expect(screen.getByText('For You').className).toContain('text-farmsoc-primary');
+    expect(screen.getByText('For You').className).toContain('text-kisanly-primary');
     
     // Should show recommendations section
     expect(screen.getByText('Recommended for you')).toBeInTheDocument();
@@ -82,7 +82,7 @@ describe('ConsumerHome Component', () => {
     fireEvent.click(screen.getByText('Feed'));
     
     // Feed tab should now be active
-    expect(screen.getByText('Feed').className).toContain('text-farmsoc-primary');
+    expect(screen.getByText('Feed').className).toContain('text-kisanly-primary');
   });
 
   test('displays empty state when no posts', async () => {

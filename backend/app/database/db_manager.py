@@ -94,7 +94,7 @@ class DBManager:
             system_msg = Message(
                 session_id=session.id,
                 role="system",
-                content="You are FarmSocial AI, a helpful assistant for Kannada-speaking farmers. Respond naturally and informatively in Kannada based on the user's voice or text input."
+                content="You are Kisanly AI, a helpful assistant for Kannada-speaking farmers. Respond naturally and informatively in Kannada based on the user's voice or text input."
             )
             self.db.add(system_msg)
             self.db.commit()

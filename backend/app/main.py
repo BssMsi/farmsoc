@@ -25,7 +25,7 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-app = FastAPI(title="FarmSoc AI Agent Backend")
+app = FastAPI(title="Kisanly AI Agent Backend")
 
 # Configure CORS (adjust origins as needed for development/production)
 origins = [os.getenv("FRONTEND_URL", "*")]

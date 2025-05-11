@@ -173,7 +173,7 @@ const MediaCarousel: React.FC<MediaCarouselProps> = ({
             <div
               key={index}
               className={`w-1.5 h-1.5 rounded-full transition-colors ${
-                index === currentIndex ? 'bg-farmsoc-primary' : 'bg-white/50'
+                index === currentIndex ? 'bg-kisanly-primary' : 'bg-white/50'
               }`}
             />
           ))}
