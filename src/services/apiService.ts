@@ -599,7 +599,7 @@ export interface HealthCheckResponse {
 }
 
 // Define a base API URL that doesn't rely on process.env
-const API_BASE_URL = 'http://140.245.233.27:8080';
+const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
 
 export const performHealthCheck = async (
   diseases: string[],
