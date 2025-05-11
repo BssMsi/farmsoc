@@ -598,8 +598,7 @@ export interface HealthCheckResponse {
   comments: string;
 }
 
-// Define a base API URL that doesn't rely on process.env
-const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 export const performHealthCheck = async (
   diseases: string[],
